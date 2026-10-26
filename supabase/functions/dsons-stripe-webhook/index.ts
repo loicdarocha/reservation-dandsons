@@ -92,6 +92,7 @@ Deno.serve(async (req) => {
       Départ : ${dateFr(r.depart)} avant ${l.depart_heure}<br>
       ${nuits} nuit(s) · ${r.adultes + r.enfants} voyageur(s)</p>
       <p><b>Caution :</b> une empreinte bancaire de ${eur(r.caution_montant)} sera réalisée sur votre carte la veille de votre arrivée. Rien n'est débité ; elle est libérée automatiquement 48 h après votre départ.</p>
+      ${(l.options ?? []).length ? `<p><b>Options de séjour</b> (à réserver si besoin) :</p><p>${(l.options ?? []).map((o: any) => `<a href="${o.url}" style="display:inline-block;margin:0 8px 8px 0;padding:10px 14px;background:#1f5fd6;color:#fff;border-radius:8px;text-decoration:none;font-family:Arial,sans-serif;font-size:14px">${o.libelle} · ${o.prix} €</a>`).join("")}</p><p style="font-size:13px;color:#666">Le départ tardif se réserve au plus tard à 9h le matin du départ.</p>` : ""}
       <p>Votre contrat de location signé est en pièce jointe. Les codes d'accès et le livret d'accueil vous seront envoyés avant votre arrivée.</p>
       <p>Une question ? ${p.telephone_hote} · ${p.email_hote}</p>
       <p>À très vite,<br>Loïc – D and Sons</p>

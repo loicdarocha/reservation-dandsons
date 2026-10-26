@@ -4,7 +4,7 @@
 import { admin, cors, devis, json, nuitsEntre, nuitsOccupees, prixNuit, reservable, iso } from "../_shared/commun.ts";
 
 const CHAMPS =
-  "slug,nom,ville,capacite,menage,taxe_sejour_pp,prix_semaine,prix_weekend,nuits_min,description,equipements,photos,arrivee_heure,depart_heure,ordre,ical_url,actif,titre,description_longue,chambres,lits,salles_de_bain,note,nb_avis,latitude,longitude";
+  "slug,nom,ville,capacite,menage,taxe_sejour_pp,prix_semaine,prix_weekend,nuits_min,description,equipements,photos,arrivee_heure,depart_heure,ordre,ical_url,actif,titre,description_longue,chambres,lits,salles_de_bain,note,nb_avis,latitude,longitude,options";
 
 const publicLogement = (l: any) => {
   const { ical_url, ...reste } = l;

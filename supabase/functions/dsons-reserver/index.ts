@@ -120,7 +120,7 @@ Deno.serve(async (req) => {
       "line_items[0][price_data][product_data][name]": `${l.nom} - ${d.nuits.length} nuit(s)`,
       "line_items[0][price_data][product_data][description]": `Du ${resa.arrivee} au ${resa.depart} · ${adultes + enfants} voyageur(s)`,
       expires_at: String(Math.floor(Date.now() / 1000) + 31 * 60),
-      success_url: `${site}?confirmation=${ref}`,
+      success_url: `${site}?confirmation=${ref}&logement=${l.slug}`,
       cancel_url: `${site}?logement=${l.slug}&annule=1`,
     });
 
