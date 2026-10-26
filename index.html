@@ -7,22 +7,23 @@
 <meta name="description" content="Réservez en direct nos logements à Cournon-d'Auvergne, Aubière et Royat : suites avec spa, salles cinéma, appartements pour curistes.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Gloock&family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 :root{
-  --basalte:#23272b;
-  --basalte-doux:#4a5056;
-  --lave:#a9472a;
-  --lave-fonce:#8a3920;
-  --volvic:#d9d3c9;
-  --brume:#f3f1ec;
-  --blanc:#fbfaf7;
-  --thermal:#4f6f62;
-  --thermal-clair:#dfe8e3;
-  --erreur:#a12a2a;
-  --rayon:6px;
-  --serif:"Gloock", Georgia, serif;
-  --sans:"Figtree", system-ui, sans-serif;
+  --basalte:#222222;      /* texte */
+  --basalte-doux:#6a6a6a; /* texte secondaire */
+  --lave:#1f5fd6;         /* bleu D and Sons */
+  --lave-fonce:#1849a8;
+  --volvic:#dddddd;       /* bordures */
+  --brume:#ffffff;        /* fond */
+  --blanc:#ffffff;
+  --gris-clair:#f7f7f7;
+  --thermal:#1849a8;
+  --thermal-clair:#eef3fd;
+  --erreur:#c13515;
+  --rayon:8px;
+  --serif:"Plus Jakarta Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --sans:"Plus Jakarta Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
 }
 *{box-sizing:border-box}
 html{-webkit-text-size-adjust:100%}
@@ -241,36 +242,121 @@ canvas#signature{width:100%;height:180px;background:var(--blanc);border:1.5px so
 .confirmation h1{font-family:var(--serif);font-weight:400;font-size:clamp(40px,7vw,72px);line-height:1;margin:0 0 16px}
 .confirmation p{font-size:18px;color:var(--basalte-doux)}
 .chargement{padding:60px 0;color:var(--basalte-doux)}
+
+/* ===== Direction Airbnb, en bleu ===== */
+body{font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1280px;padding-left:max(24px,env(safe-area-inset-left,0px));padding-right:max(24px,env(safe-area-inset-right,0px))}
+@media (max-width:600px){.wrap{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}}
+.barre-haut{position:sticky;top:0;z-index:20;background:#fff;border-bottom:1px solid var(--volvic)}
+.entete{display:flex;align-items:center;justify-content:space-between;gap:16px;padding-top:14px;padding-bottom:14px}
+.marque{display:flex;align-items:center;gap:8px;color:var(--lave);font-family:var(--sans);font-weight:800;font-size:20px;letter-spacing:-.02em}
+.entete a.tel{border:1px solid var(--volvic);border-radius:999px;padding:9px 16px;font-size:14px;font-weight:600}
+.entete a.tel:hover{box-shadow:0 2px 6px rgba(0,0,0,.12)}
+.recherche{display:flex;align-items:center;border:1px solid var(--volvic);border-radius:999px;padding:6px 6px 6px 8px;box-shadow:0 1px 2px rgba(0,0,0,.08),0 4px 12px rgba(0,0,0,.05);background:#fff}
+.recherche button{border:0;background:none;border-radius:999px;padding:6px 18px;text-align:left;font-size:14px;font-weight:600;cursor:pointer;line-height:1.25;position:relative}
+.recherche button small{display:block;font-size:11px;font-weight:700;color:var(--basalte)}
+.recherche button+button::before{content:"";position:absolute;left:0;top:22%;height:56%;border-left:1px solid var(--volvic)}
+.recherche button[aria-pressed="true"]{background:var(--thermal-clair);color:var(--lave-fonce)}
+.recherche button[aria-pressed="true"]::before,.recherche button[aria-pressed="true"]+button::before{display:none}
+.recherche button:hover:not([aria-pressed="true"]){background:var(--gris-clair)}
+.recherche .loupe{width:36px;height:36px;border-radius:50%;background:var(--lave);color:#fff;display:grid;place-items:center;margin-left:6px;flex:none}
+@media (max-width:860px){
+  .entete{flex-wrap:wrap}
+  .recherche{order:3;width:100%;overflow-x:auto;scrollbar-width:none}
+  .recherche::-webkit-scrollbar{display:none}
+  .recherche button{white-space:nowrap;padding:6px 14px}
+}
+.intro{padding-top:28px;padding-bottom:4px}
+.intro h1{font-size:26px;font-weight:700;letter-spacing:-.02em;margin:0;font-family:var(--sans)}
+.intro p{margin:6px 0 0;color:var(--basalte-doux)}
+#liste{padding-top:24px}
+
+/* Cartes */
+.annonces{gap:40px 24px}
+@media (min-width:1100px){.annonces{grid-template-columns:repeat(4,1fr)}}
+.carrousel{border-radius:12px;aspect-ratio:20/19}
+.badge{border-radius:999px;font-size:13px;font-weight:700;padding:5px 12px;background:#fff;color:var(--basalte)}
+.carte-info h3{font-size:15px;font-weight:600}
+.carte-info .ville,.carte-info .detail{font-size:15px}
+.carte-info .tarif{font-size:15px}
+.carte:hover h3{text-decoration:none}
+.points i.on{background:#fff;transform:scale(1.15)}
+.bientot-liste{border-radius:12px;background:var(--gris-clair);border:0}
+.bientot-liste h3{font-family:var(--sans);font-weight:700;font-size:18px}
+
+/* Boutons */
+.btn{border-radius:8px;font-weight:600;background:linear-gradient(90deg,#2a6ff0,#1849a8)}
+.btn:hover{background:linear-gradient(90deg,#1f5fd6,#143d8c)}
+.btn:disabled{background:var(--volvic);color:#fff}
+.btn.secondaire{background:#fff;border:1px solid var(--basalte);color:var(--basalte)}
+.btn.secondaire:hover{background:var(--gris-clair);color:var(--basalte)}
+
+/* Engagements */
+.engagements{margin-top:64px;gap:24px}
+.engagements::before{border-top:1px solid var(--volvic)}
+.engagements h3{font-family:var(--sans);font-weight:700;font-size:16px}
+.engagements p{font-size:15px}
+footer{border-top:1px solid var(--volvic)}
+
+/* Page logement */
+.tunnel{padding-top:24px}
+.retour{font-size:14px;text-decoration:underline}
+.tunnel-tete{margin:4px 0 20px}
+.tunnel-tete h1{font-family:var(--sans);font-weight:700;font-size:clamp(22px,3vw,28px);letter-spacing:-.02em;line-height:1.25}
+.tunnel-tete .lieu{font-weight:600;font-size:15px;color:var(--basalte)}
+.galerie{border-radius:12px;grid-template-rows:220px 220px}
+.fiche h2,.fiche-cal h2,.bloc>h2{font-family:var(--sans)!important;font-weight:700!important;font-size:22px!important;letter-spacing:-.01em}
+.fiche section{padding:32px 0}
+.equip-liste li::before{border-color:var(--lave)}
+.recap{border:1px solid var(--volvic);border-radius:12px;box-shadow:0 6px 16px rgba(0,0,0,.12);padding:24px;top:100px}
+.prix-tete b{font-family:var(--sans);font-weight:700;font-size:22px}
+.recap .caution{background:var(--thermal-clair);color:var(--thermal)}
+.etapes li{border-top-width:4px}
+.etapes li[aria-current="step"]{border-color:var(--lave)}
+
+/* Calendrier */
+.mois h3{font-family:var(--sans);font-weight:600;font-size:16px;text-align:center}
+.jours{gap:2px 0}
+.jour{background:transparent;border-radius:999px;font-weight:600;font-size:14px}
+.jour:hover:not(:disabled){outline:1.5px solid var(--basalte);outline-offset:-1.5px}
+.jour.dans{background:var(--thermal-clair);border-radius:0}
+.jour.debut,.jour.fin{background:var(--lave);color:#fff;border-radius:999px}
+.jour small{font-weight:400}
+.cal-nav button,.compteur button{border:1px solid var(--volvic)}
+.cal-nav button:hover,.compteur button:hover{border-color:var(--basalte)}
+.villes{display:none}
+
+/* Formulaires */
+input[type=text],input[type=email],input[type=tel],select{border:1px solid #b0b0b0;border-radius:8px}
+input:focus,select:focus{border-color:var(--basalte);box-shadow:0 0 0 1px var(--basalte)}
+.depot label.zone{border-radius:12px}
+.depot label.zone.ok{border-color:var(--lave);background:var(--thermal-clair)}
+.contrat,canvas#signature{border-radius:12px}
+.confirmation h1{font-family:var(--sans);font-weight:700;letter-spacing:-.02em}
 </style>
 </head>
 <body>
-<div class="wrap">
-  <header class="entete">
-    <a class="marque" href="./">D and Sons</a>
+<div class="barre-haut">
+  <header class="entete wrap">
+    <a class="marque" href="./" aria-label="D and Sons, accueil">
+      <svg viewBox="0 0 32 32" width="30" height="30" aria-hidden="true"><path d="M16 3 3 14v15h9v-9h8v9h9V14z" fill="currentColor"/></svg>
+      <span>D and Sons</span>
+    </a>
+    <div class="recherche" id="recherche" role="group" aria-label="Choisir une ville"></div>
     <a class="tel" href="tel:+33615272545">06 15 27 25 45</a>
   </header>
 </div>
 
 <!-- ACCUEIL -->
 <main id="vue-accueil">
-  <section class="hero wrap">
-    <h1>Dormez au pied des volcans.</h1>
-    <p>Nos suites et appartements de Cournon-d'Auvergne, Aubière et Royat, à réserver directement auprès de nous : même logement, même accueil, sans frais de plateforme.</p>
-    <svg class="puys" viewBox="0 0 1200 220" aria-hidden="true" fill="none">
-      <path class="trace" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"
-        d="M0 205 L60 200 L110 188 C140 170 160 150 185 150 C210 150 225 172 250 186 L300 196 C330 180 350 140 380 128 C410 118 430 148 455 170 L500 186 L540 176 C575 120 610 62 650 52 C690 44 720 96 760 150 L800 178 L840 172 C870 150 895 128 925 126 C955 125 975 152 1000 172 L1050 186 C1080 170 1100 160 1125 162 C1150 165 1170 190 1200 198"/>
-      <circle class="dome" cx="650" cy="32" r="7"/>
-    </svg>
-    <div class="hero-pied">
-      <span><b>Paiement sécurisé</b> par carte</span>
-      <span><b>Contrat</b> signé en ligne</span>
-      <span><b>Calendrier</b> à jour en temps réel</span>
-    </div>
+  <section class="intro wrap">
+    <h1>Nos logements en Auvergne</h1>
+    <p>Réservez en direct, sans frais de service : paiement sécurisé, contrat signé en ligne, arrivée autonome.</p>
   </section>
 
   <section class="wrap" aria-labelledby="titre-logements">
     <h2 id="titre-logements" hidden>Nos logements</h2>
-    <div class="villes" role="group" aria-label="Filtrer par ville" id="filtres"></div>
+
     <div id="liste"><p class="chargement">Chargement des logements…</p></div>
   </section>
 
@@ -450,11 +536,12 @@ async function chargerAccueil() {
 }
 function rendreFiltres() {
   const villes = [...new Set(logements.map((l) => l.ville))];
-  $("#filtres").innerHTML = [`<button type="button" aria-pressed="true" data-v="tous">Toutes les villes</button>`, ...villes.map((v) => `<button type="button" aria-pressed="false" data-v="${echapper(v)}">${echapper(v)}</button>`)].join("");
-  $("#filtres").onclick = (e) => {
+  $("#recherche").innerHTML = [`<button type="button" aria-pressed="true" data-v="tous"><small>Destination</small>Toutes les villes</button>`, ...villes.map((v) => `<button type="button" aria-pressed="false" data-v="${echapper(v)}"><small>Ville</small>${echapper(v.replace("-d'Auvergne", ""))}</button>`), `<span class="loupe" aria-hidden="true"><svg viewBox="0 0 32 32" width="14" height="14"><path d="M13 3a10 10 0 1 0 6.3 17.8l6.4 6.4 2.1-2.1-6.4-6.4A10 10 0 0 0 13 3zm0 3a7 7 0 1 1 0 14 7 7 0 0 1 0-14z" fill="currentColor"/></svg></span>`].join("");
+  $("#recherche").onclick = (e) => {
     const b = e.target.closest("button"); if (!b) return;
-    $$("#filtres button").forEach((x) => x.setAttribute("aria-pressed", x === b));
-    rendreListe(b.dataset.v);
+    $$("#recherche button").forEach((x) => x.setAttribute("aria-pressed", x === b));
+    if (!$("#vue-accueil").hidden) rendreListe(b.dataset.v);
+    else { location.hash = ""; setTimeout(() => rendreListe(b.dataset.v)); }
   };
 }
 function rendreListe(filtre) {
@@ -800,13 +887,13 @@ function afficherMsg(t, type = "erreur") { $("#msg").innerHTML = t ? `<p class="
 function montrer(v) {
   if (v !== "tunnel") document.body.classList.remove("etape1"); ["accueil", "tunnel", "confirmation"].forEach((x) => ($("#vue-" + x).hidden = x !== v)); }
 function route() {
+  if (!logements.length && !route.chargement) { route.chargement = true; chargerAccueil(); }
   const q = new URLSearchParams(location.search);
   const h = new URLSearchParams(location.hash.slice(1));
   if (h.get("logement")) return ouvrirTunnel(h.get("logement"));
   if (q.get("confirmation")) { montrer("confirmation"); $("#c-ref").textContent = q.get("confirmation"); return; }
   if (q.get("logement")) return ouvrirTunnel(q.get("logement"));
   montrer("accueil"); document.title = "D and Sons · Réservation directe";
-  if (!logements.length) chargerAccueil();
 }
 $("#btn-retour").onclick = () => { if (location.search) location.href = location.pathname; else location.hash = ""; };
 window.addEventListener("hashchange", route);
