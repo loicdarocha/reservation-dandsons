@@ -260,11 +260,13 @@ body{font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased}
 .recherche button[aria-pressed="true"]::before,.recherche button[aria-pressed="true"]+button::before{display:none}
 .recherche button:hover:not([aria-pressed="true"]){background:var(--gris-clair)}
 .recherche .loupe{width:36px;height:36px;border-radius:50%;background:var(--lave);color:#fff;display:grid;place-items:center;margin-left:6px;flex:none}
+.recherche .court{display:none}
 @media (max-width:860px){
   .entete{flex-wrap:wrap}
-  .recherche{order:3;width:100%;overflow-x:auto;scrollbar-width:none}
-  .recherche::-webkit-scrollbar{display:none}
-  .recherche button{white-space:nowrap;padding:6px 14px}
+  .recherche{order:3;width:100%;padding:4px;box-sizing:border-box}
+  .recherche button{flex:1 1 0;min-width:0;text-align:center;white-space:nowrap;padding:9px 4px;font-size:14px}
+  .recherche button small,.recherche .loupe,.recherche .long{display:none}
+  .recherche .court{display:inline}
 }
 .intro{padding-top:28px;padding-bottom:4px}
 .intro h1{font-size:26px;font-weight:700;letter-spacing:-.02em;margin:0;font-family:var(--sans)}
@@ -536,7 +538,7 @@ async function chargerAccueil() {
 }
 function rendreFiltres() {
   const villes = [...new Set(logements.map((l) => l.ville))];
-  $("#recherche").innerHTML = [`<button type="button" aria-pressed="true" data-v="tous"><small>Destination</small>Toutes les villes</button>`, ...villes.map((v) => `<button type="button" aria-pressed="false" data-v="${echapper(v)}"><small>Ville</small>${echapper(v.replace("-d'Auvergne", ""))}</button>`), `<span class="loupe" aria-hidden="true"><svg viewBox="0 0 32 32" width="14" height="14"><path d="M13 3a10 10 0 1 0 6.3 17.8l6.4 6.4 2.1-2.1-6.4-6.4A10 10 0 0 0 13 3zm0 3a7 7 0 1 1 0 14 7 7 0 0 1 0-14z" fill="currentColor"/></svg></span>`].join("");
+  $("#recherche").innerHTML = [`<button type="button" aria-pressed="true" data-v="tous"><small>Destination</small><span class="long">Toutes les villes</span><span class="court">Toutes</span></button>`, ...villes.map((v) => `<button type="button" aria-pressed="false" data-v="${echapper(v)}"><small>Ville</small>${echapper(v.replace("-d'Auvergne", ""))}</button>`), `<span class="loupe" aria-hidden="true"><svg viewBox="0 0 32 32" width="14" height="14"><path d="M13 3a10 10 0 1 0 6.3 17.8l6.4 6.4 2.1-2.1-6.4-6.4A10 10 0 0 0 13 3zm0 3a7 7 0 1 1 0 14 7 7 0 0 1 0-14z" fill="currentColor"/></svg></span>`].join("");
   $("#recherche").onclick = (e) => {
     const b = e.target.closest("button"); if (!b) return;
     $$("#recherche button").forEach((x) => x.setAttribute("aria-pressed", x === b));
