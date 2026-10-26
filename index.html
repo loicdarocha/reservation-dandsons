@@ -1,0 +1,816 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>D and Sons · Réservation directe</title>
+<meta name="description" content="Réservez en direct nos logements à Cournon-d'Auvergne, Aubière et Royat : suites avec spa, salles cinéma, appartements pour curistes.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gloock&family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --basalte:#23272b;
+  --basalte-doux:#4a5056;
+  --lave:#a9472a;
+  --lave-fonce:#8a3920;
+  --volvic:#d9d3c9;
+  --brume:#f3f1ec;
+  --blanc:#fbfaf7;
+  --thermal:#4f6f62;
+  --thermal-clair:#dfe8e3;
+  --erreur:#a12a2a;
+  --rayon:6px;
+  --serif:"Gloock", Georgia, serif;
+  --sans:"Figtree", system-ui, sans-serif;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--brume);color:var(--basalte);font:400 17px/1.55 var(--sans)}
+img{max-width:100%;display:block}
+a{color:var(--lave-fonce)}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--lave);outline-offset:2px}
+.wrap{max-width:1120px;margin:0 auto;padding:0 24px}
+@media (max-width:600px){.wrap{padding:0 16px}}
+[hidden]{display:none!important}
+
+/* En-tête */
+.entete{display:flex;justify-content:space-between;align-items:center;padding:20px 0}
+.marque{font-family:var(--serif);font-size:24px;text-decoration:none;color:var(--basalte);letter-spacing:.01em}
+.entete a.tel{font-weight:600;text-decoration:none;color:var(--basalte)}
+
+/* Hero : la chaîne des Puys */
+.hero{position:relative;padding-top:40px;overflow:hidden}
+.hero h1{font-family:var(--serif);font-weight:400;font-size:clamp(38px,5.5vw,68px);line-height:1;margin:0;max-width:16ch;letter-spacing:-.01em}
+.hero p{max-width:46ch;font-size:19px;color:var(--basalte-doux);margin:24px 0 0}
+.puys{display:block;width:100%;height:auto;max-height:120px;margin-top:8px;color:var(--basalte)}
+.puys .trace{stroke-dasharray:3200;stroke-dashoffset:3200;animation:trace 2.6s .2s cubic-bezier(.6,.1,.3,1) forwards}
+.puys .dome{fill:var(--lave);opacity:0;animation:apparait .6s 2.2s forwards}
+@keyframes trace{to{stroke-dashoffset:0}}
+@keyframes apparait{to{opacity:1}}
+@media (prefers-reduced-motion:reduce){.puys .trace{animation:none;stroke-dashoffset:0}.puys .dome{animation:none;opacity:1}}
+.hero-pied{display:flex;flex-wrap:wrap;gap:8px 28px;border-top:2px solid var(--basalte);padding:14px 0 0;font-size:15px}
+.hero-pied b{font-weight:600}
+
+/* Villes */
+.villes{display:flex;gap:8px;flex-wrap:wrap;margin:36px 0 28px}
+.villes button{border:1.5px solid var(--basalte);background:transparent;border-radius:999px;padding:8px 18px;cursor:pointer;font-weight:500}
+.villes button[aria-pressed="true"]{background:var(--basalte);color:var(--blanc)}
+.ville{margin-top:48px}
+.ville h2{font-family:var(--serif);font-weight:400;font-size:clamp(32px,4.5vw,48px);margin:0 0 4px}
+.ville .sous{color:var(--basalte-doux);margin:0 0 20px;max-width:60ch}
+
+/* Annonces : grille de cartes avec carrousel photo */
+.annonces{display:grid;grid-template-columns:repeat(3,1fr);gap:36px 24px}
+@media (max-width:980px){.annonces{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:600px){.annonces{grid-template-columns:1fr}}
+.carte{position:relative;color:inherit;text-decoration:none;display:block}
+.carrousel{position:relative;aspect-ratio:1/0.95;border-radius:14px;overflow:hidden;background:var(--volvic)}
+.carrousel .piste{display:flex;height:100%;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none}
+.carrousel .piste::-webkit-scrollbar{display:none}
+.carrousel img{flex:0 0 100%;width:100%;height:100%;object-fit:cover;scroll-snap-align:start}
+.carrousel .fl{position:absolute;top:50%;transform:translateY(-50%);width:34px;height:34px;border-radius:50%;border:0;background:rgba(255,255,255,.92);cursor:pointer;font-size:18px;line-height:1;opacity:0;transition:opacity .15s;box-shadow:0 1px 4px rgba(0,0,0,.18)}
+.carrousel .fl.g{left:10px}.carrousel .fl.d{right:10px}
+.carte:hover .fl,.carte:focus-within .fl{opacity:1}
+@media (hover:none){.carrousel .fl{display:none}}
+.points{position:absolute;bottom:10px;left:0;right:0;display:flex;justify-content:center;gap:5px;pointer-events:none}
+.points i{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.6)}
+.points i.on{background:#fff}
+.badge{position:absolute;top:12px;left:12px;background:var(--blanc);border-radius:999px;padding:4px 12px;font-size:13px;font-weight:600;box-shadow:0 1px 4px rgba(0,0,0,.15)}
+.carte-info{padding-top:12px;display:grid;grid-template-columns:1fr auto;gap:2px 12px}
+.carte-info h3{margin:0;font-size:16px;font-weight:600;line-height:1.3}
+.carte-info .note{font-size:15px;white-space:nowrap}
+.carte-info .ville,.carte-info .detail{grid-column:1/-1;color:var(--basalte-doux);font-size:15px;margin:0}
+.carte-info .tarif{grid-column:1/-1;margin:4px 0 0;font-size:15px}
+.carte-info .tarif b{font-weight:700}
+.bientot-liste{margin:56px 0 0;padding:20px 24px;background:var(--blanc);border:1px solid var(--volvic);border-radius:14px}
+.bientot-liste h3{font-family:var(--serif);font-weight:400;font-size:24px;margin:0 0 6px}
+.bientot-liste p{margin:0;color:var(--basalte-doux)}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:0;border-radius:var(--rayon);background:var(--lave);color:#fff;font-weight:600;padding:13px 22px;cursor:pointer;text-decoration:none;min-height:48px}
+.btn:hover{background:var(--lave-fonce)}
+.btn:disabled{background:var(--volvic);color:var(--basalte-doux);cursor:not-allowed}
+.btn.secondaire{background:transparent;color:var(--basalte);border:1.5px solid var(--basalte)}
+.btn.secondaire:hover{background:var(--basalte);color:var(--blanc)}
+.btn.plein{width:100%}
+
+/* Page annonce */
+.galerie{display:grid;grid-template-columns:2fr 1fr 1fr;grid-template-rows:200px 200px;gap:8px;border-radius:14px;overflow:hidden;position:relative;margin-bottom:32px}
+.galerie button{padding:0;border:0;cursor:zoom-in;background:var(--volvic);overflow:hidden}
+.galerie img{width:100%;height:100%;object-fit:cover;transition:filter .15s}
+.galerie button:hover img{filter:brightness(.88)}
+.galerie button:first-child{grid-row:1/3}
+.galerie .tout{position:absolute;right:14px;bottom:14px;background:var(--blanc);border:1px solid var(--basalte);border-radius:var(--rayon);padding:7px 14px;font-weight:600;font-size:14px;cursor:pointer}
+@media (max-width:760px){
+  .galerie{grid-template-columns:1fr;grid-template-rows:auto;border-radius:0;margin:0 -16px 24px}
+  .galerie button{display:none;aspect-ratio:4/3}
+  .galerie button:first-child{display:block;grid-row:auto}
+}
+.fiche h2{font-family:var(--serif);font-weight:400;font-size:26px;margin:0 0 4px}
+.fiche .capa{margin:0 0 20px;color:var(--basalte-doux)}
+.fiche section{padding:24px 0;border-top:1px solid var(--volvic)}
+.fiche .desc{white-space:pre-line;max-width:65ch}
+.fiche .desc.court{max-height:9.5em;overflow:hidden;mask-image:linear-gradient(#000 60%,transparent)}
+.lien-plus{background:none;border:0;padding:8px 0 0;font-weight:600;text-decoration:underline;cursor:pointer}
+.equip-liste{display:grid;grid-template-columns:1fr 1fr;gap:10px 24px;list-style:none;padding:0;margin:0}
+.equip-liste li{padding-left:22px;position:relative}
+.equip-liste li::before{content:"";position:absolute;left:0;top:.55em;width:9px;height:9px;border-radius:50%;border:2px solid var(--lave)}
+@media (max-width:600px){.equip-liste{grid-template-columns:1fr}}
+.carte-osm{width:100%;height:280px;border:0;border-radius:14px;display:block}
+.horaires{display:flex;gap:40px;flex-wrap:wrap}
+.horaires b{display:block}
+.prix-tete{font-size:15px;margin:0 0 14px}
+.prix-tete b{font-family:var(--serif);font-weight:400;font-size:28px}
+.recap .note{font-size:14px;color:var(--basalte-doux);margin:10px 0 0;text-align:center}
+.recap .avis-ligne{font-size:14px;margin:0 0 14px}
+
+/* Mobile : barre de réservation fixe en bas, comme sur Airbnb */
+@media (max-width:900px){
+  body.etape1 .recap{position:fixed;left:0;right:0;bottom:0;top:auto;z-index:5;border-radius:0;border:0;border-top:1px solid var(--volvic);padding:12px 16px calc(12px + env(safe-area-inset-bottom));display:grid;grid-template-columns:1fr auto;align-items:center;gap:12px;box-shadow:0 -4px 16px rgba(0,0,0,.08)}
+  body.etape1 .recap dl,body.etape1 .recap .caution,body.etape1 .recap .note{display:none}
+  body.etape1 .recap .prix-tete{margin:0}
+  body.etape1 .recap #btn-reserver{margin:0!important;width:auto;white-space:nowrap}
+  body.etape1{padding-bottom:90px}
+}
+
+/* Visionneuse photos */
+dialog#visionneuse{border:0;padding:0;max-width:none;max-height:none;width:100vw;height:100vh;background:#111a;backdrop-filter:blur(2px)}
+dialog#visionneuse::backdrop{background:rgba(20,22,24,.92)}
+.vis-piste{display:flex;height:100%;overflow-x:auto;scroll-snap-type:x mandatory}
+.vis-piste figure{flex:0 0 100%;margin:0;display:grid;place-items:center;scroll-snap-align:center;padding:56px 16px}
+.vis-piste img{max-width:100%;max-height:100%;object-fit:contain;border-radius:6px}
+.vis-fermer,.vis-fl{position:fixed;border:0;background:var(--blanc);border-radius:50%;width:44px;height:44px;cursor:pointer;font-size:20px;z-index:2}
+.vis-fermer{top:12px;right:12px}
+.vis-fl.g{left:12px;top:50%}.vis-fl.d{right:12px;top:50%}
+.vis-compte{position:fixed;top:22px;left:0;right:0;text-align:center;color:#fff;font-size:15px}
+@media (hover:none){.vis-fl{display:none}}
+
+/* Bloc confiance */
+.engagements{display:grid;grid-template-columns:repeat(3,1fr);gap:32px;margin-top:96px;margin-bottom:64px;padding-top:24px;position:relative}
+.engagements::before{content:"";position:absolute;top:0;left:24px;right:24px;border-top:2px solid var(--basalte)}
+@media (max-width:600px){.engagements::before{left:16px;right:16px}}
+.engagements h3{font-family:var(--serif);font-weight:400;font-size:24px;margin:0 0 6px}
+.engagements p{margin:0;color:var(--basalte-doux)}
+@media (max-width:760px){.engagements{grid-template-columns:1fr;gap:20px}}
+footer{padding:32px 0 48px;font-size:14px;color:var(--basalte-doux);border-top:1px solid var(--volvic)}
+
+/* Tunnel de réservation */
+.tunnel{padding-top:16px;padding-bottom:80px}
+.retour{background:none;border:0;padding:8px 0;cursor:pointer;font-weight:600;color:var(--basalte)}
+.tunnel-tete{display:flex;justify-content:space-between;align-items:end;gap:24px;flex-wrap:wrap;margin:8px 0 28px}
+.tunnel-tete h1{font-family:var(--serif);font-weight:400;font-size:clamp(36px,6vw,64px);line-height:1;margin:0}
+.tunnel-tete .lieu{color:var(--basalte-doux);margin:6px 0 0}
+.etapes{display:flex;gap:4px;list-style:none;padding:0;margin:0 0 28px;counter-reset:e}
+.etapes li{flex:1;font-size:14px;font-weight:500;color:var(--basalte-doux);padding-top:10px;border-top:3px solid var(--volvic);counter-increment:e}
+.etapes li::before{content:counter(e) ". "}
+.etapes li[aria-current="step"]{color:var(--basalte);border-color:var(--lave)}
+.etapes li.faite{color:var(--basalte);border-color:var(--basalte)}
+@media (max-width:600px){.etapes li:not([aria-current]) span{display:none}}
+
+.grille-tunnel{display:grid;grid-template-columns:1fr 340px;gap:40px;align-items:start}
+@media (max-width:900px){.grille-tunnel{grid-template-columns:1fr}}
+.recap{position:sticky;top:20px;background:var(--blanc);border:1px solid var(--volvic);border-radius:var(--rayon);padding:22px}
+.recap h2{font-family:var(--serif);font-weight:400;font-size:24px;margin:0 0 12px}
+.recap dl{display:grid;grid-template-columns:1fr auto;gap:6px 12px;margin:0}
+.recap dt{color:var(--basalte-doux)}
+.recap dd{margin:0;text-align:right}
+.recap .total{border-top:1px solid var(--volvic);padding-top:10px;margin-top:6px;font-weight:700}
+.recap .caution{font-size:14px;color:var(--basalte-doux);margin:14px 0 0;padding:10px 12px;background:var(--thermal-clair);border-radius:var(--rayon);color:var(--thermal)}
+
+/* Calendrier */
+.cal-nav{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.cal-nav button{border:1.5px solid var(--basalte);background:transparent;border-radius:50%;width:40px;height:40px;cursor:pointer;font-size:18px}
+.cal-nav button:disabled{opacity:.3;cursor:default}
+.mois-duo{display:grid;grid-template-columns:1fr 1fr;gap:32px}
+@media (max-width:700px){.mois-duo{grid-template-columns:1fr}.mois-duo .mois:nth-child(2){display:none}}
+.mois h3{font-family:var(--serif);font-weight:400;font-size:22px;margin:0 0 10px;text-transform:capitalize}
+.jours{display:grid;grid-template-columns:repeat(7,1fr);gap:2px}
+.jours .js{font-size:12px;color:var(--basalte-doux);text-align:center;padding-bottom:4px}
+.jour{aspect-ratio:1/1;border:0;background:var(--blanc);border-radius:4px;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:15px;line-height:1.1;padding:0}
+.jour small{font-size:10.5px;color:var(--basalte-doux)}
+.jour:hover:not(:disabled){outline:1.5px solid var(--basalte)}
+.jour:disabled{background:transparent;color:#b3aea6;cursor:not-allowed;text-decoration:line-through}
+.jour:disabled small{visibility:hidden}
+.jour.depart-ok{background:var(--blanc);color:var(--basalte);text-decoration:none;cursor:pointer}
+.jour.dans{background:#ecd9cf}
+.jour.debut,.jour.fin{background:var(--lave);color:#fff}
+.jour.debut small,.jour.fin small{color:#fbe9e1}
+.vide{visibility:hidden}
+.legende{font-size:14px;color:var(--basalte-doux);margin:12px 0 0}
+
+.champs{display:grid;grid-template-columns:1fr 1fr;gap:16px 18px}
+.champs .large{grid-column:1/-1}
+@media (max-width:600px){.champs{grid-template-columns:1fr}}
+label{display:block;font-weight:600;font-size:15px;margin-bottom:6px}
+label .opt{font-weight:400;color:var(--basalte-doux)}
+input[type=text],input[type=email],input[type=tel],select{width:100%;border:1.5px solid var(--volvic);background:var(--blanc);border-radius:var(--rayon);padding:12px 14px;min-height:48px}
+input:focus,select:focus{border-color:var(--basalte);outline:none}
+.compteur{display:flex;align-items:center;gap:12px}
+.compteur button{width:44px;height:44px;border-radius:50%;border:1.5px solid var(--basalte);background:transparent;cursor:pointer;font-size:20px}
+.compteur output{min-width:2ch;text-align:center;font-weight:600;font-size:18px}
+.bloc{margin-top:32px}
+.bloc>h2{font-family:var(--serif);font-weight:400;font-size:28px;margin:0 0 6px}
+.bloc>p{margin:0 0 16px;color:var(--basalte-doux);max-width:62ch}
+
+.depot{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media (max-width:600px){.depot{grid-template-columns:1fr}}
+.depot label.zone{border:1.5px dashed var(--basalte-doux);border-radius:var(--rayon);padding:20px;text-align:center;cursor:pointer;background:var(--blanc);font-weight:500;min-height:150px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;margin:0}
+.depot label.zone.ok{border-style:solid;border-color:var(--thermal);background:var(--thermal-clair)}
+.depot label.zone img{max-height:110px;border-radius:4px}
+.depot input{position:absolute;opacity:0;width:1px;height:1px}
+.depot .nom-fic{font-size:13px;color:var(--basalte-doux);word-break:break-all}
+
+.contrat{background:var(--blanc);border:1px solid var(--volvic);border-radius:var(--rayon);padding:24px;max-height:420px;overflow:auto;font-size:15px}
+.contrat h3{font-family:var(--serif);font-weight:400;font-size:22px;margin:0 0 10px}
+.contrat h4{font-size:15px;margin:16px 0 4px}
+.contrat p{margin:0 0 6px}
+.signature-zone{position:relative;margin-top:8px}
+canvas#signature{width:100%;height:180px;background:var(--blanc);border:1.5px solid var(--basalte);border-radius:var(--rayon);touch-action:none;cursor:crosshair}
+.signature-zone .effacer{position:absolute;top:8px;right:8px;background:var(--brume);border:1px solid var(--volvic);border-radius:4px;padding:4px 10px;cursor:pointer;font-size:14px}
+.signature-zone .indice{position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);text-align:center;color:#b3aea6;pointer-events:none;font-family:var(--serif);font-size:24px}
+.case{display:flex;gap:12px;align-items:flex-start;margin-top:16px;font-weight:400}
+.case input{width:22px;height:22px;margin-top:2px;accent-color:var(--lave);flex:none}
+
+.actions{display:flex;justify-content:space-between;gap:12px;margin-top:32px;flex-wrap:wrap}
+.message{padding:12px 16px;border-radius:var(--rayon);margin-top:16px}
+.message.erreur{background:#f6dede;color:var(--erreur)}
+.message.info{background:var(--thermal-clair);color:var(--thermal)}
+
+.confirmation{max-width:640px;margin:48px auto 96px;text-align:left}
+.confirmation h1{font-family:var(--serif);font-weight:400;font-size:clamp(40px,7vw,72px);line-height:1;margin:0 0 16px}
+.confirmation p{font-size:18px;color:var(--basalte-doux)}
+.chargement{padding:60px 0;color:var(--basalte-doux)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="entete">
+    <a class="marque" href="./">D and Sons</a>
+    <a class="tel" href="tel:+33615272545">06 15 27 25 45</a>
+  </header>
+</div>
+
+<!-- ACCUEIL -->
+<main id="vue-accueil">
+  <section class="hero wrap">
+    <h1>Dormez au pied des volcans.</h1>
+    <p>Nos suites et appartements de Cournon-d'Auvergne, Aubière et Royat, à réserver directement auprès de nous : même logement, même accueil, sans frais de plateforme.</p>
+    <svg class="puys" viewBox="0 0 1200 220" aria-hidden="true" fill="none">
+      <path class="trace" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"
+        d="M0 205 L60 200 L110 188 C140 170 160 150 185 150 C210 150 225 172 250 186 L300 196 C330 180 350 140 380 128 C410 118 430 148 455 170 L500 186 L540 176 C575 120 610 62 650 52 C690 44 720 96 760 150 L800 178 L840 172 C870 150 895 128 925 126 C955 125 975 152 1000 172 L1050 186 C1080 170 1100 160 1125 162 C1150 165 1170 190 1200 198"/>
+      <circle class="dome" cx="650" cy="32" r="7"/>
+    </svg>
+    <div class="hero-pied">
+      <span><b>Paiement sécurisé</b> par carte</span>
+      <span><b>Contrat</b> signé en ligne</span>
+      <span><b>Calendrier</b> à jour en temps réel</span>
+    </div>
+  </section>
+
+  <section class="wrap" aria-labelledby="titre-logements">
+    <h2 id="titre-logements" hidden>Nos logements</h2>
+    <div class="villes" role="group" aria-label="Filtrer par ville" id="filtres"></div>
+    <div id="liste"><p class="chargement">Chargement des logements…</p></div>
+  </section>
+
+  <section class="wrap engagements">
+    <div><h3>Réservé en direct</h3><p>Vous traitez avec nous, pas avec une plateforme. Une question avant ou pendant le séjour : un seul numéro.</p></div>
+    <div><h3>Arrivée autonome</h3><p>Boîte à clés connectée : votre code arrive avant le séjour, vous entrez à l'heure qui vous convient.</p></div>
+    <div><h3>Caution sans débit</h3><p>Une simple empreinte bancaire de 500 € la veille de l'arrivée, libérée 48 h après votre départ.</p></div>
+  </section>
+</main>
+
+<!-- TUNNEL -->
+<main id="vue-tunnel" class="wrap tunnel" hidden>
+  <button class="retour" type="button" id="btn-retour">‹ Tous les logements</button>
+  <div class="tunnel-tete">
+    <div>
+      <h1 id="t-nom"></h1>
+      <p class="lieu" id="t-lieu"></p>
+    </div>
+  </div>
+  <div class="galerie" id="galerie"></div>
+  <ol class="etapes" id="etapes">
+    <li aria-current="step"><span>Dates</span></li>
+    <li><span>Voyageurs</span></li>
+    <li><span>Contrat</span></li>
+    <li><span>Paiement</span></li>
+  </ol>
+
+  <div class="grille-tunnel">
+    <form id="form-resa" novalidate>
+      <!-- Étape 1 : dates -->
+      <section data-etape="1">
+        <div class="fiche" id="fiche"></div>
+        <section class="fiche-cal" style="border-top:1px solid var(--volvic);padding-top:24px">
+        <h2 style="font-family:var(--serif);font-weight:400;font-size:26px;margin:0 0 12px">Choisissez vos dates</h2>
+        <div class="cal-nav">
+          <button type="button" id="cal-prec" aria-label="Mois précédent">‹</button>
+          <span id="cal-consigne">Choisissez votre date d'arrivée</span>
+          <button type="button" id="cal-suiv" aria-label="Mois suivant">›</button>
+        </div>
+        <div class="mois-duo" id="calendrier"></div>
+        <p class="legende">Prix par nuit. Les dates barrées sont déjà réservées.</p>
+        </section>
+        <div class="bloc">
+          <h2>Voyageurs</h2>
+          <div class="champs">
+            <div><label>Adultes</label><div class="compteur" data-champ="adultes"><button type="button" data-d="-1" aria-label="Retirer un adulte">−</button><output id="o-adultes">2</output><button type="button" data-d="1" aria-label="Ajouter un adulte">+</button></div></div>
+            <div><label>Enfants</label><div class="compteur" data-champ="enfants"><button type="button" data-d="-1" aria-label="Retirer un enfant">−</button><output id="o-enfants">0</output><button type="button" data-d="1" aria-label="Ajouter un enfant">+</button></div></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Étape 2 : infos + pièce d'identité -->
+      <section data-etape="2" hidden>
+        <div class="bloc" style="margin-top:0">
+          <h2>Vos coordonnées</h2>
+          <p>Elles figurent sur le contrat de location. Nous vous écrivons à cette adresse et à ce numéro pendant le séjour.</p>
+          <div class="champs">
+            <div><label for="prenom">Prénom</label><input type="text" id="prenom" name="prenom" autocomplete="given-name" required></div>
+            <div><label for="nom">Nom</label><input type="text" id="nom" name="nom" autocomplete="family-name" required></div>
+            <div><label for="email">Email</label><input type="email" id="email" name="email" autocomplete="email" required></div>
+            <div><label for="telephone">Téléphone</label><input type="tel" id="telephone" name="telephone" autocomplete="tel" required></div>
+            <div class="large"><label for="adresse">Adresse <span class="opt">(facultatif)</span></label><input type="text" id="adresse" name="adresse" autocomplete="street-address"></div>
+            <div><label for="code_postal">Code postal <span class="opt">(facultatif)</span></label><input type="text" id="code_postal" name="code_postal" autocomplete="postal-code"></div>
+            <div><label for="ville">Ville <span class="opt">(facultatif)</span></label><input type="text" id="ville" name="ville" autocomplete="address-level2"></div>
+            <div><label for="pays">Pays</label>
+              <select id="pays" name="pays" autocomplete="country">
+                <option value="FR" selected>France</option><option value="BE">Belgique</option><option value="CH">Suisse</option><option value="LU">Luxembourg</option><option value="DE">Allemagne</option><option value="ES">Espagne</option><option value="IT">Italie</option><option value="GB">Royaume-Uni</option><option value="NL">Pays-Bas</option><option value="PT">Portugal</option><option value="US">États-Unis</option><option value="CA">Canada</option><option value="AUTRE">Autre</option>
+              </select></div>
+          </div>
+        </div>
+        <div class="bloc">
+          <h2>Pièce d'identité</h2>
+          <p>Carte d'identité ou passeport de la personne qui réserve, en photo ou en PDF. Elle est stockée de façon privée et supprimée 6 mois après le séjour.</p>
+          <div class="depot">
+            <label class="zone" id="z-recto"><input type="file" id="cni_recto" accept="image/*,application/pdf"><span>Recto <span class="opt">(ou page photo du passeport)</span></span><span class="nom-fic">Prendre une photo ou choisir un fichier</span></label>
+            <label class="zone" id="z-verso"><input type="file" id="cni_verso" accept="image/*,application/pdf"><span>Verso <span class="opt">(facultatif pour un passeport)</span></span><span class="nom-fic">Prendre une photo ou choisir un fichier</span></label>
+          </div>
+        </div>
+      </section>
+
+      <!-- Étape 3 : contrat -->
+      <section data-etape="3" hidden>
+        <div class="bloc" style="margin-top:0">
+          <h2>Votre contrat de location</h2>
+          <p>Lisez-le, puis signez avec le doigt ou la souris. Vous le recevrez en PDF par email après le paiement.</p>
+          <div class="contrat" id="contrat" tabindex="0" aria-label="Texte du contrat"></div>
+        </div>
+        <div class="bloc">
+          <h2>Signature</h2>
+          <div class="signature-zone">
+            <canvas id="signature" aria-label="Zone de signature"></canvas>
+            <span class="indice" id="sig-indice">Signez ici</span>
+            <button type="button" class="effacer" id="sig-effacer">Effacer</button>
+          </div>
+          <label class="case"><input type="checkbox" id="accepte"> <span>J'ai lu et j'accepte le contrat de location, y compris l'empreinte bancaire de caution de <span class="c-caution">500</span> € réalisée la veille de mon arrivée.</span></label>
+        </div>
+      </section>
+
+      <div id="msg" role="alert"></div>
+      <div class="actions">
+        <button type="button" class="btn secondaire" id="btn-prec" hidden>Retour</button>
+        <button type="button" class="btn" id="btn-suiv" disabled>Continuer</button>
+      </div>
+    </form>
+
+    <aside class="recap" aria-live="polite">
+      <p class="prix-tete" id="prix-tete"></p>
+      <dl id="recap-dl"><dt>Dates</dt><dd>à choisir</dd></dl>
+      <button type="button" class="btn plein" id="btn-reserver" style="margin-top:16px" disabled>Choisissez vos dates</button>
+      <p class="note" id="note-reserver">Aucun montant débité à cette étape</p>
+      <p class="caution">Caution : empreinte bancaire de <span class="c-caution">500</span> € la veille de l'arrivée, sans débit, libérée 48 h après le départ.</p>
+    </aside>
+  </div>
+</main>
+
+<!-- CONFIRMATION -->
+<main id="vue-confirmation" class="wrap" hidden>
+  <div class="confirmation">
+    <h1>C'est réservé.</h1>
+    <p>Merci ! Votre paiement est validé. Vous allez recevoir par email la confirmation et votre contrat signé (référence <b id="c-ref"></b>).</p>
+    <p>Les codes d'accès et le livret d'accueil vous seront envoyés avant votre arrivée. Une question : <a href="tel:+33615272545">06 15 27 25 45</a>.</p>
+    <p><a class="btn secondaire" href="./">Retour aux logements</a></p>
+  </div>
+</main>
+
+<dialog id="visionneuse" aria-label="Photos du logement">
+  <span class="vis-compte" id="vis-compte"></span>
+  <button class="vis-fermer" type="button" id="vis-fermer" aria-label="Fermer">✕</button>
+  <button class="vis-fl g" type="button" data-s="-1" aria-label="Photo précédente">‹</button>
+  <button class="vis-fl d" type="button" data-s="1" aria-label="Photo suivante">›</button>
+  <div class="vis-piste" id="vis-piste"></div>
+</dialog>
+
+<div class="wrap"><footer>D and Sons · Location saisonnière en Auvergne · <a href="mailto:l.darocha@tf-courtage.fr">l.darocha@tf-courtage.fr</a></footer></div>
+
+<script>
+const SUPABASE = "https://hojcqnlkkuenobvainpf.supabase.co";
+const ANON = "sb_publishable_RVmEy_gim03uwOqmWYmHtA_pmg5MsWC";
+const FN = SUPABASE + "/functions/v1/";
+// Copie des annonces intégrée : la page s'affiche même si le serveur ne répond pas
+const SECOURS = [{"slug": "la-suite-cosy", "nom": "La Suite Cosy", "ville": "Cournon-d'Auvergne", "capacite": 3, "menage": 0, "taxe_sejour_pp": 0, "prix_semaine": 118, "prix_weekend": 166, "nuits_min": 1, "description": "Appartement cosy avec spa privatif, grande douche à l'italienne et écran de 200 cm, en plein cœur de Cournon-d'Auvergne.", "equipements": ["Spa privatif", "Douche à l'italienne", "Écran 200 cm + Netflix", "Cuisine équipée", "Machine Nespresso", "Bouilloire et grille-pain", "Wi-Fi", "Espace de travail", "Lit queen size", "Linge de lit fourni", "Parking gratuit", "Arrivée autonome (boîte à clés)"], "photos": ["https://hojcqnlkkuenobvainpf.supabase.co/storage/v1/object/public/dsons-photos/la-suite-cosy/01.jpg", "https://hojcqnlkkuenobvainpf.supabase.co/storage/v1/object/public/dsons-photos/la-suite-cosy/02.jpg", "https://hojcqnlkkuenobvainpf.supabase.co/storage/v1/object/public/dsons-photos/la-suite-cosy/03.jpg", "https://hojcqnlkkuenobvainpf.supabase.co/storage/v1/object/public/dsons-photos/la-suite-cosy/04.jpg", "https://hojcqnlkkuenobvainpf.supabase.co/storage/v1/object/public/dsons-photos/la-suite-cosy/05.jpg"], "arrivee_heure": "16:00", "depart_heure": "10:00", "titre": "La Suite Cosy, spa privatif à 5 minutes du Zénith", "description_longue": "Bienvenue dans notre charmant appartement cosy à Cournon-d'Auvergne, à 5 minutes du Zénith.\n\nProfitez d'un séjour relaxant avec un parking à proximité et un accès facile aux transports en commun. Notre espace soigneusement aménagé vous offre tout le confort nécessaire, agrémenté d'une expérience luxueuse avec un spa privé et une vaste douche à l'italienne. Profitez d'un écran plat de 200 cm pour une expérience cinématographique immersive.\n\nSitué au cœur de Cournon-d'Auvergne, l'appartement bénéficie d'un emplacement idéal. Vous pourrez facilement stationner sur le parking juste en face du logement, sur le parking juste au-dessus de l'immeuble, ou sur le parking de la mairie à une minute à pied. Que vous soyez ici pour un séjour touristique ou professionnel, vous serez à quelques pas de tout ce que la ville a à offrir.\n\nL'entrée se fait librement via une boîte à clés connectée. Vous recevez toutes les informations d'arrivée la veille de votre séjour, et je reste disponible pour toutes vos demandes.", "chambres": 1, "lits": "1 lit queen size", "salles_de_bain": 1, "note": 4.93, "nb_avis": 372, "latitude": 45.741760384239, "longitude": 3.1977372989058, "reservable": false}, {"slug": "le-cosy", "nom": "Le Cosy", "ville": "Cournon-d'Auvergne", "capacite": 3, "menage": 0, "taxe_sejour_pp": 0, "prix_semaine": 58, "prix_weekend": 75, "nuits_min": 1, "description": "Appartement au design moderne et chaleureux, en plein centre de Cournon, avec baignoire et écran de 144 cm.", "equipements": ["Lit double", "Canapé", "Linge de lit fourni", "Cuisine équipée", "Écran 144 cm + Netflix", "Salle de bains avec baignoire", "Machine à laver", "Wi-Fi haut débit", "Parking gratuit", "Arrivée autonome (boîte à clés)"], "photos": ["https://hojcqnlkkuenobvainpf.supabase.co/storage/v1/object/public/dsons-photos/le-cosy/01.jpg", "https://hojcqnlkkuenobvainpf.supabase.co/storage/v1/object/public/dsons-photos/le-cosy/02.jpg", "https://hojcqnlkkuenobvainpf.supabase.co/storage/v1/object/public/dsons-photos/le-cosy/03.jpg", "https://hojcqnlkkuenobvainpf.supabase.co/storage/v1/object/public/dsons-photos/le-cosy/04.jpg", "https://hojcqnlkkuenobvainpf.supabase.co/storage/v1/object/public/dsons-photos/le-cosy/05.jpg", "https://hojcqnlkkuenobvainpf.supabase.co/storage/v1/object/public/dsons-photos/le-cosy/06.jpg"], "arrivee_heure": "16:00", "depart_heure": "10:00", "titre": "Le Cosy, 5 minutes du Zénith de Cournon-d'Auvergne", "description_longue": "Notre appartement est aménagé avec soin pour vous offrir une ambiance cosy et relaxante, à 5 minutes du Zénith de Cournon-d'Auvergne. Avec son design moderne et ses touches chaleureuses, vous vous sentirez comme chez vous dès votre arrivée.\n\nL'appartement est situé en plein centre de Cournon-d'Auvergne, proche d'une sortie d'autoroute. Un arrêt de bus est à une minute à pied.\n\nVous pourrez facilement stationner sur le parking juste en face du logement, sur le parking juste au-dessus de l'immeuble, ou sur le parking de la mairie à une minute à pied. Que vous soyez ici pour un séjour touristique ou professionnel, vous serez à quelques pas de tout ce que la ville a à offrir.\n\nVous avez accès au logement entier, sauf le cellier où sont rangés les produits d'entretien.", "chambres": 1, "lits": "1 lit double + 1 canapé", "salles_de_bain": 1, "note": 4.94, "nb_avis": 357, "latitude": 45.741738157067, "longitude": 3.1977329403162, "reservable": false}, {"slug": "chalet-aubiere", "nom": "Le Chalet", "ville": "Aubière", "capacite": 2, "photos": [], "reservable": false}, {"slug": "cinema-aubiere", "nom": "La Suite Cinéma", "ville": "Aubière", "capacite": 2, "photos": [], "reservable": false}, {"slug": "spa-aubiere", "nom": "Le Spa d'Aubière", "ville": "Aubière", "capacite": 2, "photos": [], "reservable": false}, {"slug": "chalet-royat", "nom": "Le Chalet de Royat", "ville": "Royat", "capacite": 2, "photos": [], "reservable": false}, {"slug": "cinema-royat", "nom": "Cinéma Room Royat", "ville": "Royat", "capacite": 2, "photos": [], "reservable": false}, {"slug": "love-room-royat", "nom": "Love Room Royat", "ville": "Royat", "capacite": 2, "photos": [], "reservable": false}, {"slug": "appartements-royat", "nom": "Appartements Royat (1 à 6)", "ville": "Royat", "capacite": 2, "photos": [], "reservable": false}];
+const PARAMS_SECOURS = { caution_montant: "500", raison_sociale: "D and Sons" };
+const avecDelai = (promesse, ms = 6000) => Promise.race([promesse, new Promise((_, rej) => setTimeout(() => rej(new Error("délai")), ms))]);
+const VILLES = {
+  "Cournon-d'Auvergne": "À cinq minutes du Zénith d'Auvergne et de la Grande Halle : idéal pour un concert, un salon ou une soirée en amoureux.",
+  "Aubière": "Aux portes de Clermont-Ferrand, des suites à thème pour une nuit qui sort de l'ordinaire.",
+  "Royat": "La station thermale au pied du Puy de Dôme. Appartements pensés pour les curistes, séjours courts ou cures de trois semaines.",
+};
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const eur = (n) => Number(n).toLocaleString("fr-FR", { minimumFractionDigits: Number(n) % 1 ? 2 : 0, maximumFractionDigits: 2 }) + " €";
+const iso = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+const versDate = (s) => { const [y, m, d] = s.split("-").map(Number); return new Date(y, m - 1, d); };
+const ajout = (s, n) => { const d = versDate(s); d.setDate(d.getDate() + n); return iso(d); };
+const dateLongue = (s) => versDate(s).toLocaleDateString("fr-FR", { weekday: "short", day: "numeric", month: "short" });
+const echapper = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+
+let logements = [];
+let params = {};
+const etat = { l: null, occ: new Set(), prix: {}, arrivee: null, depart: null, adultes: 2, enfants: 0, devis: null, etape: 1, mois: null, recto: null, verso: null, signe: false };
+
+// ---------- Accueil ----------
+async function chargerAccueil() {
+  try {
+    const [r, p] = await Promise.all([
+      avecDelai(fetch(FN + "dsons-dispo").then((r) => r.json())).catch(() => ({ logements: SECOURS })),
+      avecDelai(fetch(SUPABASE + "/rest/v1/dsons_parametres?select=cle,valeur", { headers: { apikey: ANON } }).then((r) => r.json())).catch(() => []),
+    ]);
+    logements = r.logements ?? [];
+    params = { ...PARAMS_SECOURS, ...Object.fromEntries((Array.isArray(p) ? p : []).map((x) => [x.cle, x.valeur])) };
+    $$(".c-caution").forEach((e) => (e.textContent = params.caution_montant ?? "500"));
+    rendreFiltres();
+    rendreListe("tous");
+  } catch (e) {
+    $("#liste").innerHTML = `<p class="message erreur">Les logements n'ont pas pu être chargés. Rechargez la page ou appelez-nous au 06 15 27 25 45.</p>`;
+  }
+}
+function rendreFiltres() {
+  const villes = [...new Set(logements.map((l) => l.ville))];
+  $("#filtres").innerHTML = [`<button type="button" aria-pressed="true" data-v="tous">Toutes les villes</button>`, ...villes.map((v) => `<button type="button" aria-pressed="false" data-v="${echapper(v)}">${echapper(v)}</button>`)].join("");
+  $("#filtres").onclick = (e) => {
+    const b = e.target.closest("button"); if (!b) return;
+    $$("#filtres button").forEach((x) => x.setAttribute("aria-pressed", x === b));
+    rendreListe(b.dataset.v);
+  };
+}
+function rendreListe(filtre) {
+  const visibles = logements.filter((l) => filtre === "tous" || l.ville === filtre);
+  const avecPhotos = visibles.filter((l) => l.photos?.length);
+  const sans = visibles.filter((l) => !l.photos?.length);
+  $("#liste").innerHTML =
+    (avecPhotos.length ? `<div class="annonces">${avecPhotos.map(carteAnnonce).join("")}</div>` : "") +
+    (sans.length ? `<div class="bientot-liste"><h3>Bientôt en réservation directe</h3><p>${sans.map((l) => `${echapper(l.nom)} (${echapper(l.ville)})`).join(", ")}. En attendant, appelez-nous au <a href="tel:+33615272545">06 15 27 25 45</a>.</p></div>` : "");
+  $$(".carte .carrousel").forEach(activerCarrousel);
+}
+const noteTxt = (l) => l.note ? `★ ${String(l.note).replace(".", ",")}${l.nb_avis ? ` (${l.nb_avis})` : ""}` : "";
+function carteAnnonce(l) {
+  const prixMin = Math.min(l.prix_semaine ?? Infinity, l.prix_weekend ?? Infinity);
+  const photos = l.photos.map((u, i) => `<img src="${echapper(u)}" alt="${echapper(l.nom)}, photo ${i + 1}" loading="${i ? "lazy" : "eager"}" draggable="false">`).join("");
+  return `<a class="carte" href="#logement=${l.slug}" data-slug="${l.slug}">
+    <div class="carrousel">
+      <div class="piste">${photos}</div>
+      ${l.note >= 4.9 ? `<span class="badge">Coup de cœur voyageurs</span>` : ""}
+      ${l.photos.length > 1 ? `<button type="button" class="fl g" aria-label="Photo précédente">‹</button><button type="button" class="fl d" aria-label="Photo suivante">›</button><div class="points">${l.photos.map((_, i) => `<i class="${i ? "" : "on"}"></i>`).join("")}</div>` : ""}
+    </div>
+    <div class="carte-info">
+      <h3>${echapper(l.titre ?? l.nom)}</h3><span class="note">${noteTxt(l)}</span>
+      <p class="ville">${echapper(l.ville)}</p>
+      <p class="detail">${l.capacite} voyageurs${l.chambres ? ` · ${l.chambres} chambre` : ""}${l.lits ? ` · ${echapper(l.lits)}` : ""}</p>
+      <p class="tarif">${isFinite(prixMin) ? `À partir de <b>${eur(prixMin)}</b> par nuit` : "Sur demande"}</p>
+    </div>
+  </a>`;
+}
+function activerCarrousel(c) {
+  const piste = $(".piste", c), pts = $$(".points i", c);
+  const aller = (s) => piste.scrollBy({ left: s * piste.clientWidth, behavior: "smooth" });
+  c.querySelectorAll(".fl").forEach((b) => b.addEventListener("click", (e) => { e.preventDefault(); e.stopPropagation(); aller(b.classList.contains("d") ? 1 : -1); }));
+  piste.addEventListener("scroll", () => { const i = Math.round(piste.scrollLeft / piste.clientWidth); pts.forEach((p, k) => p.classList.toggle("on", k === i)); }, { passive: true });
+}
+document.addEventListener("click", (e) => {
+  const a = e.target.closest("a[data-slug]");
+  if (a) { e.preventDefault(); location.hash = "logement=" + a.dataset.slug; }
+});
+
+// ---------- Tunnel ----------
+async function ouvrirTunnel(slug) {
+  montrer("tunnel");
+  Object.assign(etat, { l: null, arrivee: null, depart: null, devis: null, etape: 1, recto: null, verso: null, signe: false });
+  $("#t-nom").textContent = "…"; $("#galerie").innerHTML = ""; $("#fiche").innerHTML = "";
+  $("#calendrier").innerHTML = `<p class="chargement">Chargement du calendrier…</p>`;
+  allerEtape(1);
+  try {
+    let r = await avecDelai(fetch(FN + "dsons-dispo?slug=" + encodeURIComponent(slug)).then((r) => r.json())).catch(() => null);
+    if (!r?.logement) {
+      const copie = SECOURS.find((x) => x.slug === slug);
+      if (!copie) throw new Error("introuvable");
+      r = { logement: copie, occupees: [], prix: {}, horsLigne: true };
+    }
+    etat.l = r.logement; etat.occ = new Set(r.occupees); etat.prix = r.prix;
+    if (!params.raison_sociale) {
+      const p = await avecDelai(fetch(SUPABASE + "/rest/v1/dsons_parametres?select=cle,valeur", { headers: { apikey: ANON } }).then((r) => r.json())).catch(() => []);
+      params = { ...PARAMS_SECOURS, ...Object.fromEntries((Array.isArray(p) ? p : []).map((x) => [x.cle, x.valeur])) };
+      $$(".c-caution").forEach((e) => (e.textContent = params.caution_montant ?? "500"));
+    }
+    $("#t-nom").textContent = etat.l.titre ?? etat.l.nom;
+    $("#t-lieu").textContent = [noteTxt(etat.l) && `${noteTxt(etat.l)} avis`, etat.l.ville].filter(Boolean).join(" · ");
+    document.title = `${etat.l.nom} · D and Sons`;
+    rendreFiche();
+    if (!etat.l.reservable) {
+      $("#calendrier").innerHTML = r.horsLigne
+        ? `<p class="message info">Le calendrier et la réservation s'affichent une fois le site en ligne. Pour réserver maintenant : <a href="tel:+33615272545">06 15 27 25 45</a>.</p>`
+        : `<p class="message info">Ce logement n'est pas encore réservable en ligne. Appelez-nous au <a href="tel:+33615272545">06 15 27 25 45</a>.</p>`;
+      return;
+    }
+    const auj = new Date(); etat.mois = new Date(auj.getFullYear(), auj.getMonth(), 1);
+    if (new URLSearchParams(location.search).get("annule")) afficherMsg("Le paiement a été interrompu : vos dates ne sont pas réservées. Vous pouvez recommencer.", "info");
+    rendreCalendrier(); majRecap();
+  } catch (e) {
+    $("#calendrier").innerHTML = `<p class="message erreur">Le calendrier n'a pas pu être chargé. Rechargez la page.</p>`;
+  }
+}
+
+function rendreFiche() {
+  const l = etat.l, ph = l.photos ?? [];
+  $("#galerie").innerHTML = ph.length
+    ? ph.slice(0, 5).map((u, i) => `<button type="button" data-i="${i}" aria-label="Agrandir la photo ${i + 1}"><img src="${echapper(u)}" alt="${echapper(l.nom)}, photo ${i + 1}"></button>`).join("") + (ph.length > 1 ? `<button type="button" class="tout" data-i="0">Voir les ${ph.length} photos</button>` : "")
+    : "";
+  $("#galerie").hidden = !ph.length;
+  $("#galerie").style.gridTemplateRows = ph.length < 3 ? "400px" : "";
+  const desc = l.description_longue ?? l.description ?? "";
+  $("#fiche").innerHTML = `
+    <h2>Logement entier à ${echapper(l.ville)}</h2>
+    <p class="capa">${l.capacite} voyageurs${l.chambres ? ` · ${l.chambres} chambre` : ""}${l.lits ? ` · ${echapper(l.lits)}` : ""}${l.salles_de_bain ? ` · ${l.salles_de_bain} salle de bain` : ""}</p>
+    <section><p class="desc court" id="desc">${echapper(desc)}</p>${desc.length > 400 ? `<button type="button" class="lien-plus" id="desc-plus">Lire la suite</button>` : ""}</section>
+    ${l.equipements?.length ? `<section><h2>Ce que propose ce logement</h2><ul class="equip-liste" style="margin-top:12px">${l.equipements.map((e) => `<li>${echapper(e)}</li>`).join("")}</ul></section>` : ""}
+    <section><h2>Arrivée et départ</h2><div class="horaires" style="margin-top:10px"><span><b>Arrivée</b>à partir de ${l.arrivee_heure}, en autonomie</span><span><b>Départ</b>avant ${l.depart_heure}</span><span><b>Caution</b>empreinte de ${params.caution_montant ?? 500} €, sans débit</span></div></section>
+    ${l.latitude ? `<section><h2>Où vous serez</h2><p class="capa" style="margin-bottom:12px">${echapper(l.ville)}, Puy-de-Dôme. L'adresse exacte est communiquée après la réservation.</p><iframe class="carte-osm" loading="lazy" title="Carte du quartier" src="https://www.openstreetmap.org/export/embed.html?bbox=${l.longitude - 0.012},${l.latitude - 0.007},${l.longitude + 0.012},${l.latitude + 0.007}&layer=mapnik"></iframe></section>` : ""}`;
+  const plus = $("#desc-plus");
+  if (plus) plus.onclick = () => { const d = $("#desc"); d.classList.toggle("court"); plus.textContent = d.classList.contains("court") ? "Lire la suite" : "Réduire"; };
+  else $("#desc").classList.remove("court");
+  const min = Math.min(l.prix_semaine ?? Infinity, l.prix_weekend ?? Infinity);
+  $("#prix-tete").innerHTML = isFinite(min) ? `À partir de <b>${eur(min)}</b> / nuit` : "";
+}
+
+// Visionneuse plein écran
+$("#galerie").addEventListener("click", (e) => { const b = e.target.closest("[data-i]"); if (b) ouvrirVisionneuse(Number(b.dataset.i)); });
+function ouvrirVisionneuse(i) {
+  const ph = etat.l.photos, piste = $("#vis-piste");
+  piste.innerHTML = ph.map((u, k) => `<figure><img src="${echapper(u)}" alt="${echapper(etat.l.nom)}, photo ${k + 1}"></figure>`).join("");
+  $("#visionneuse").showModal();
+  piste.scrollLeft = i * piste.clientWidth; compteVis();
+}
+function compteVis() { const p = $("#vis-piste"); $("#vis-compte").textContent = `${Math.round(p.scrollLeft / p.clientWidth) + 1} / ${etat.l.photos.length}`; }
+$("#vis-piste").addEventListener("scroll", compteVis, { passive: true });
+$("#vis-fermer").onclick = () => $("#visionneuse").close();
+$$(".vis-fl").forEach((b) => (b.onclick = () => $("#vis-piste").scrollBy({ left: b.dataset.s * innerWidth, behavior: "smooth" })));
+document.addEventListener("keydown", (e) => {
+  if (!$("#visionneuse").open) return;
+  if (e.key === "ArrowRight") $("#vis-piste").scrollBy({ left: innerWidth, behavior: "smooth" });
+  if (e.key === "ArrowLeft") $("#vis-piste").scrollBy({ left: -innerWidth, behavior: "smooth" });
+});
+
+function rendreCalendrier() {
+  const auj = iso(new Date());
+  const limite = ajout(auj, 364);
+  const html = [0, 1].map((k) => {
+    const m = new Date(etat.mois.getFullYear(), etat.mois.getMonth() + k, 1);
+    const decal = (m.getDay() + 6) % 7;
+    const nb = new Date(m.getFullYear(), m.getMonth() + 1, 0).getDate();
+    let cases = ["lun", "mar", "mer", "jeu", "ven", "sam", "dim"].map((j) => `<span class="js">${j}</span>`).join("");
+    cases += `<span class="vide"></span>`.repeat(decal);
+    for (let d = 1; d <= nb; d++) {
+      const s = iso(new Date(m.getFullYear(), m.getMonth(), d));
+      const classes = ["jour"]; let dispo = s >= auj && s <= limite && !etat.occ.has(s);
+      // En sélection du départ : un jour occupé reste choisissable comme jour de départ
+      if (etat.arrivee && !etat.depart && s > etat.arrivee && departPossible(s)) { dispo = true; if (etat.occ.has(s)) classes.push("depart-ok"); }
+      if (etat.arrivee && !etat.depart && s > etat.arrivee && !departPossible(s)) dispo = false;
+      if (s === etat.arrivee) classes.push("debut");
+      if (s === etat.depart) classes.push("fin");
+      if (etat.arrivee && etat.depart && s > etat.arrivee && s < etat.depart) classes.push("dans");
+      const prix = etat.prix[s] && !etat.occ.has(s) ? `<small>${Math.round(etat.prix[s])}€</small>` : `<small>&nbsp;</small>`;
+      cases += `<button type="button" class="${classes.join(" ")}" data-d="${s}" ${dispo ? "" : "disabled"} aria-label="${dateLongue(s)}${dispo ? "" : ", indisponible"}">${d}${prix}</button>`;
+    }
+    return `<div class="mois"><h3>${m.toLocaleDateString("fr-FR", { month: "long", year: "numeric" })}</h3><div class="jours">${cases}</div></div>`;
+  }).join("");
+  $("#calendrier").innerHTML = html;
+  const premier = new Date(); premier.setDate(1);
+  $("#cal-prec").disabled = etat.mois <= new Date(premier.getFullYear(), premier.getMonth(), 1);
+  $("#cal-consigne").textContent = !etat.arrivee ? "Choisissez votre date d'arrivée" : !etat.depart ? "Choisissez votre date de départ" : `${nbNuits()} nuit${nbNuits() > 1 ? "s" : ""} sélectionnée${nbNuits() > 1 ? "s" : ""}`;
+}
+function departPossible(s) {
+  for (let n = etat.arrivee; n < s; n = ajout(n, 1)) if (etat.occ.has(n)) return false;
+  return true;
+}
+const nbNuits = () => etat.arrivee && etat.depart ? Math.round((versDate(etat.depart) - versDate(etat.arrivee)) / 864e5) : 0;
+
+$("#calendrier").addEventListener("click", (e) => {
+  const b = e.target.closest("button.jour"); if (!b || b.disabled) return;
+  const s = b.dataset.d;
+  if (!etat.arrivee || etat.depart || s <= etat.arrivee) { etat.arrivee = s; etat.depart = null; etat.devis = null; }
+  else {
+    const min = etat.l.nuits_min ?? 1;
+    if (Math.round((versDate(s) - versDate(etat.arrivee)) / 864e5) < min) { afficherMsg(`Séjour minimum : ${min} nuits.`, "erreur"); return; }
+    etat.depart = s; calculerDevis();
+  }
+  afficherMsg("");
+  rendreCalendrier(); majRecap(); majBoutons();
+});
+$("#cal-prec").onclick = () => { etat.mois.setMonth(etat.mois.getMonth() - 1); rendreCalendrier(); };
+$("#cal-suiv").onclick = () => { etat.mois.setMonth(etat.mois.getMonth() + 1); rendreCalendrier(); };
+
+$$(".compteur").forEach((c) => c.addEventListener("click", (e) => {
+  const b = e.target.closest("button"); if (!b) return;
+  const champ = c.dataset.champ; const cap = etat.l?.capacite ?? 2;
+  const v = etat[champ] + Number(b.dataset.d);
+  const autre = champ === "adultes" ? etat.enfants : etat.adultes;
+  if (v < (champ === "adultes" ? 1 : 0) || v + autre > cap) return;
+  etat[champ] = v; $("#o-" + champ).textContent = v;
+  if (etat.depart) calculerDevis(); else majRecap();
+}));
+
+async function calculerDevis() {
+  etat.devis = null; majBoutons();
+  try {
+    const r = await fetch(FN + "dsons-dispo", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ slug: etat.l.slug, arrivee: etat.arrivee, depart: etat.depart, adultes: etat.adultes }) }).then((r) => r.json());
+    if (r.erreur) throw new Error(r.erreur);
+    if (!r.disponible) { afficherMsg(r.raison ?? "Ces dates ne sont plus disponibles. Choisissez-en d'autres.", "erreur"); etat.depart = null; rendreCalendrier(); }
+    else etat.devis = r;
+  } catch (e) { afficherMsg("Le prix n'a pas pu être calculé. Réessayez.", "erreur"); }
+  majRecap(); majBoutons();
+}
+
+function majRecap() {
+  const d = etat.devis; const lignes = [];
+  if (etat.arrivee) lignes.push(["Arrivée", dateLongue(etat.arrivee)]);
+  if (etat.depart) lignes.push(["Départ", dateLongue(etat.depart)]);
+  if (!etat.arrivee) lignes.push(["Dates", "à choisir"]);
+  lignes.push(["Voyageurs", `${etat.adultes} adulte${etat.adultes > 1 ? "s" : ""}${etat.enfants ? `, ${etat.enfants} enfant${etat.enfants > 1 ? "s" : ""}` : ""}`]);
+  let html = lignes.map(([a, b]) => `<dt>${a}</dt><dd>${b}</dd>`).join("");
+  if (d) {
+    html += `<dt>${d.nuits.length} nuit${d.nuits.length > 1 ? "s" : ""}</dt><dd>${eur(d.montant_nuits)}</dd>`;
+    if (d.montant_menage) html += `<dt>Ménage</dt><dd>${eur(d.montant_menage)}</dd>`;
+    if (d.montant_taxe) html += `<dt>Taxe de séjour</dt><dd>${eur(d.montant_taxe)}</dd>`;
+    html += `<dt class="total">Total</dt><dd class="total">${eur(d.montant_total)}</dd>`;
+  }
+  $("#recap-dl").innerHTML = html;
+  if (etat.l) {
+    const min = Math.min(etat.l.prix_semaine ?? Infinity, etat.l.prix_weekend ?? Infinity);
+    $("#prix-tete").innerHTML = d ? `<b>${eur(d.montant_total)}</b> pour ${d.nuits.length} nuit${d.nuits.length > 1 ? "s" : ""}` : isFinite(min) ? `À partir de <b>${eur(min)}</b> / nuit` : "";
+  }
+}
+
+// ---------- Étapes ----------
+function allerEtape(n) {
+  etat.etape = n;
+  $$("[data-etape]").forEach((s) => (s.hidden = Number(s.dataset.etape) !== n));
+  $$("#etapes li").forEach((li, i) => { li.classList.toggle("faite", i + 1 < n); i + 1 === n ? li.setAttribute("aria-current", "step") : li.removeAttribute("aria-current"); });
+  $("#btn-prec").hidden = n === 1;
+  $("#btn-suiv").hidden = n === 1;
+  $("#galerie").hidden = n !== 1 || !etat.l?.photos?.length;
+  $("#etapes").hidden = n === 1;
+  $("#btn-reserver").hidden = $("#note-reserver").hidden = n !== 1;
+  document.body.classList.toggle("etape1", n === 1);
+  $("#btn-suiv").textContent = n === 3 ? "Payer et réserver" : "Continuer";
+  if (n === 3) { rendreContrat(); initSignature(); }
+  afficherMsg(""); majBoutons();
+  if (n > 1) window.scrollTo({ top: $("#etapes").offsetTop - 16, behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+}
+function majBoutons() {
+  let ok = false;
+  if (etat.etape === 1) ok = !!etat.devis;
+  const br = $("#btn-reserver");
+  br.disabled = !etat.devis;
+  br.textContent = etat.devis ? "Réserver" : etat.arrivee ? "Choisissez la date de départ" : "Choisissez vos dates";
+  if (etat.etape === 2) ok = ["prenom", "nom", "email", "telephone"].every((k) => $("#" + k).value.trim()) && !!etat.recto;
+  if (etat.etape === 3) ok = etat.signe && $("#accepte").checked;
+  $("#btn-suiv").disabled = !ok;
+}
+$("#form-resa").addEventListener("input", majBoutons);
+$("#btn-prec").onclick = () => allerEtape(etat.etape - 1);
+$("#btn-reserver").onclick = () => allerEtape(2);
+$("#btn-suiv").onclick = () => {
+  if (etat.etape === 2) {
+    const email = $("#email").value.trim();
+    if (!/^\S+@\S+\.\S+$/.test(email)) { afficherMsg("L'adresse email n'est pas valide.", "erreur"); $("#email").focus(); return; }
+  }
+  if (etat.etape < 3) allerEtape(etat.etape + 1); else envoyer();
+};
+
+// ---------- Pièce d'identité ----------
+async function compresser(fichier) {
+  if (!fichier.type.startsWith("image/") || fichier.type === "image/heic") return fichier;
+  try {
+    const img = await createImageBitmap(fichier);
+    const max = 2000, k = Math.min(1, max / Math.max(img.width, img.height));
+    const c = document.createElement("canvas"); c.width = Math.round(img.width * k); c.height = Math.round(img.height * k);
+    c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
+    const blob = await new Promise((r) => c.toBlob(r, "image/jpeg", 0.85));
+    return blob ? new File([blob], fichier.name.replace(/\.\w+$/, "") + ".jpg", { type: "image/jpeg" }) : fichier;
+  } catch { return fichier; }
+}
+["recto", "verso"].forEach((cote) => {
+  $("#cni_" + cote).addEventListener("change", async (e) => {
+    const f = e.target.files[0]; const zone = $("#z-" + cote);
+    if (!f) return;
+    if (f.size > 15 * 1024 * 1024) { afficherMsg("Ce fichier dépasse 15 Mo. Prenez une photo plus légère.", "erreur"); return; }
+    const c = await compresser(f);
+    etat[cote] = c; zone.classList.add("ok");
+    const apercu = c.type.startsWith("image/") && c.type !== "image/heic" ? `<img src="${URL.createObjectURL(c)}" alt="">` : "";
+    zone.querySelector(".nom-fic").innerHTML = `${apercu}${echapper(f.name)}`;
+    majBoutons();
+  });
+});
+
+// ---------- Contrat ----------
+function rendreContrat() {
+  const l = etat.l, d = etat.devis, p = params;
+  const val = (k) => $("#" + k).value.trim();
+  const art = [
+    ["1. Objet", `Le bailleur loue au locataire, qui l'accepte, le logement meublé « ${l.nom} » situé à ${l.ville}, à usage exclusif d'habitation temporaire et de loisirs (location saisonnière, articles 1713 et suivants du Code civil). Le locataire ne pourra en aucun cas se prévaloir d'un droit au maintien dans les lieux.`],
+    ["2. Durée et horaires", `Arrivée le ${dateLongue(etat.arrivee)} à partir de ${l.arrivee_heure}, départ le ${dateLongue(etat.depart)} au plus tard à ${l.depart_heure}. Les codes d'accès sont transmis la veille ou le jour de l'arrivée.`],
+    ["3. Capacité", `Le logement est loué pour ${l.capacite} personne(s) maximum. Toute personne supplémentaire non déclarée pourra entraîner la résiliation immédiate sans remboursement.`],
+    ["4. Prix et paiement", `Prix total : ${eur(d.montant_total)}, réglé intégralement en ligne à la réservation. La réservation n'est ferme qu'après encaissement.`],
+    ["5. Annulation", p.annulation ?? ""],
+    ["6. Dépôt de garantie", p.caution ?? ""],
+    ["7. Obligations du locataire", "Le locataire use paisiblement du logement et des équipements, respecte la tranquillité du voisinage, ne fume pas à l'intérieur, n'organise aucune fête ni événement, et n'introduit pas d'animaux sans accord écrit. Il signale sans délai tout dommage ou dysfonctionnement."],
+    ["8. Équipements de bien-être", "Le spa, la salle cinéma et autres équipements sont utilisés sous la responsabilité exclusive du locataire, dans le respect des consignes affichées. Leur usage est déconseillé aux femmes enceintes et aux personnes souffrant de troubles cardiaques sans avis médical."],
+    ["9. État des lieux et ménage", "Le logement est remis propre et en bon état. Le locataire le restitue rangé, vaisselle faite et poubelles sorties. Toute dégradation ou ménage exceptionnel pourra être facturé."],
+    ["10. Assurance", "Le locataire déclare être couvert par une assurance responsabilité civile villégiature pour la durée du séjour."],
+    ["11. Pièces d'identité", "Conformément à l'article R.814-1 du CESEDA (fiche de police pour les voyageurs étrangers) et pour la sécurité du séjour, le locataire transmet une pièce d'identité valide. Ces données sont conservées de manière sécurisée et supprimées au plus tard 6 mois après le séjour."],
+    ["12. Litiges", "Le présent contrat est soumis au droit français. En cas de litige, les parties recherchent une solution amiable avant toute action devant le tribunal compétent du lieu du logement."],
+  ];
+  $("#contrat").innerHTML = `<h3>Contrat de location saisonnière</h3>
+    <p><b>Bailleur :</b> ${echapper(p.raison_sociale ?? "D and Sons")}, ${echapper(p.adresse_societe ?? "")}, SIRET ${echapper(p.siret ?? "")}, représentée par Loïc Da Rocha.</p>
+    <p><b>Locataire :</b> ${echapper(val("prenom"))} ${echapper(val("nom"))}, ${echapper([val("adresse"), val("code_postal"), val("ville")].filter(Boolean).join(", "))} · ${echapper(val("telephone"))} · ${echapper(val("email"))}</p>
+    ${art.map(([t, c]) => `<h4>${t}</h4><p>${echapper(c)}</p>`).join("")}`;
+}
+
+// ---------- Signature ----------
+let sigInit = false;
+function initSignature() {
+  const c = $("#signature"); const ctx = c.getContext("2d");
+  const taille = () => { const r = c.getBoundingClientRect(); const dpr = window.devicePixelRatio || 1; c.width = r.width * dpr; c.height = r.height * dpr; ctx.scale(dpr, dpr); ctx.lineWidth = 2.4; ctx.lineCap = ctx.lineJoin = "round"; ctx.strokeStyle = "#1d2a4a"; };
+  taille(); etat.signe = false; $("#sig-indice").hidden = false;
+  if (sigInit) return; sigInit = true;
+  let trace = false, der = null;
+  const pos = (e) => { const r = c.getBoundingClientRect(); return [e.clientX - r.left, e.clientY - r.top]; };
+  c.addEventListener("pointerdown", (e) => { trace = true; der = pos(e); c.setPointerCapture(e.pointerId); $("#sig-indice").hidden = true; });
+  c.addEventListener("pointermove", (e) => {
+    if (!trace) return; const p = pos(e);
+    ctx.beginPath(); ctx.moveTo(...der); ctx.lineTo(...p); ctx.stroke(); der = p;
+    if (!etat.signe) { etat.signe = true; majBoutons(); }
+  });
+  ["pointerup", "pointercancel"].forEach((t) => c.addEventListener(t, () => (trace = false)));
+  $("#sig-effacer").onclick = () => { taille(); etat.signe = false; $("#sig-indice").hidden = false; majBoutons(); };
+  window.addEventListener("resize", () => { if (etat.etape === 3 && !etat.signe) taille(); });
+}
+function signaturePng() {
+  // Fond blanc pour le PDF
+  const c = $("#signature"); const t = document.createElement("canvas"); t.width = c.width; t.height = c.height;
+  const x = t.getContext("2d"); x.fillStyle = "#fff"; x.fillRect(0, 0, t.width, t.height); x.drawImage(c, 0, 0);
+  return t.toDataURL("image/png");
+}
+
+// ---------- Envoi ----------
+async function envoyer() {
+  const b = $("#btn-suiv"); b.disabled = true; b.textContent = "Préparation du paiement…";
+  const fd = new FormData();
+  Object.entries({ slug: etat.l.slug, arrivee: etat.arrivee, depart: etat.depart, adultes: etat.adultes, enfants: etat.enfants, accepte: $("#accepte").checked ? "1" : "0", signature: signaturePng() }).forEach(([k, v]) => fd.append(k, v));
+  ["prenom", "nom", "email", "telephone", "adresse", "code_postal", "ville", "pays"].forEach((k) => fd.append(k, $("#" + k).value.trim()));
+  fd.append("cni_recto", etat.recto);
+  if (etat.verso) fd.append("cni_verso", etat.verso);
+  try {
+    const r = await fetch(FN + "dsons-reserver", { method: "POST", body: fd }).then((r) => r.json());
+    if (!r.paiement_url) throw new Error(r.erreur ?? "Erreur inconnue");
+    $$("#etapes li").forEach((li, i) => { li.classList.toggle("faite", i < 3); i === 3 ? li.setAttribute("aria-current", "step") : li.removeAttribute("aria-current"); });
+    location.href = r.paiement_url;
+  } catch (e) {
+    afficherMsg(`La réservation n'a pas pu être créée : ${e.message}`, "erreur");
+    b.textContent = "Payer et réserver"; majBoutons();
+  }
+}
+
+function afficherMsg(t, type = "erreur") { $("#msg").innerHTML = t ? `<p class="message ${type}">${t}</p>` : ""; }
+
+// ---------- Routage ----------
+function montrer(v) {
+  if (v !== "tunnel") document.body.classList.remove("etape1"); ["accueil", "tunnel", "confirmation"].forEach((x) => ($("#vue-" + x).hidden = x !== v)); }
+function route() {
+  const q = new URLSearchParams(location.search);
+  const h = new URLSearchParams(location.hash.slice(1));
+  if (h.get("logement")) return ouvrirTunnel(h.get("logement"));
+  if (q.get("confirmation")) { montrer("confirmation"); $("#c-ref").textContent = q.get("confirmation"); return; }
+  if (q.get("logement")) return ouvrirTunnel(q.get("logement"));
+  montrer("accueil"); document.title = "D and Sons · Réservation directe";
+  if (!logements.length) chargerAccueil();
+}
+$("#btn-retour").onclick = () => { if (location.search) location.href = location.pathname; else location.hash = ""; };
+window.addEventListener("hashchange", route);
+route();
+</script>
+</body>
+</html>
