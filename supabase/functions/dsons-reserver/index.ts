@@ -143,7 +143,7 @@ Deno.serve(async (req) => {
       <p style="margin:22px 0">${btnPayer}</p>
       <p style="font-size:13px;color:#666">Lien valable 23 heures. Passé ce délai, les dates sont libérées.</p>
       <p><b>Caution de ${eur(caution)} :</b> un lien pour enregistrer votre carte (empreinte, sans débit) vous sera envoyé 7 jours avant l'arrivée, ou dès le paiement si vous arrivez dans moins de 7 jours.</p>
-      <p><b>Code d'accès :</b> envoyé par email la veille de votre arrivée.</p>`), piece);
+      <p><b>Code d'accès :</b> envoyé par email la veille de votre arrivée, uniquement une fois l'empreinte de caution acceptée.</p>`), piece);
     await envoyerEmail([params.email_hote], `📝 Contrat accepté – ${ref} – ${l.nom} (paiement en attente)`, `
       <div style="font-family:Arial,sans-serif;color:#222">
       <p><b>${resa.prenom} ${resa.nom}</b> · ${resa.telephone} · ${resa.email}</p>${recap}

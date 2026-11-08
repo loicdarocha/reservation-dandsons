@@ -460,7 +460,7 @@ input:focus,select:focus{border-color:var(--basalte);box-shadow:0 0 0 1px var(--
         <div class="bloc">
           <h2>Acceptation</h2>
           <label class="case"><input type="checkbox" id="accepte_contrat"> <span>J'ai lu et j'accepte le contrat de location saisonnière.</span></label>
-          <label class="case"><input type="checkbox" id="accepte_caution"> <span>J'accepte la caution de <span class="c-caution">500</span> € par empreinte bancaire : je recevrai un lien Stripe 7 jours avant mon arrivée pour enregistrer ma carte. Rien n'est débité ; l'empreinte est bloquée la veille de l'arrivée et libérée 48 h après le départ.</span></label>
+          <label class="case"><input type="checkbox" id="accepte_caution"> <span>J'accepte la caution de <span class="c-caution">500</span> € par empreinte bancaire : je recevrai un lien Stripe 7 jours avant mon arrivée pour enregistrer ma carte. Rien n'est débité ; l'empreinte est bloquée la veille de l'arrivée et libérée 48 h après le départ. Mon code d'accès ne m'est envoyé qu'une fois l'empreinte acceptée.</span></label>
           <label class="case"><input type="checkbox" id="accepte_infos"> <span>Je certifie l'exactitude des informations et de la pièce d'identité transmises.</span></label>
         </div>
       </section>
@@ -487,7 +487,7 @@ input:focus,select:focus{border-color:var(--basalte);box-shadow:0 0 0 1px var(--
   <div class="confirmation">
     <h1>C'est réservé.</h1>
     <p>Merci ! Votre paiement est validé. Vous allez recevoir par email la confirmation de réservation avec votre contrat (référence <b id="c-ref"></b>).</p>
-    <p>Le lien de caution (empreinte de 500 €, sans débit) arrive 7 jours avant le séjour, et votre code d'accès la veille de l'arrivée. Une question : <a href="tel:+33615272545">06 15 27 25 45</a>.</p>
+    <p>Le lien de caution (empreinte de 500 €, sans débit) arrive 7 jours avant le séjour, et votre code d'accès la veille de l'arrivée, une fois l'empreinte acceptée. Une question : <a href="tel:+33615272545">06 15 27 25 45</a>.</p>
     <div class="conf-options" id="conf-options" hidden><h2>Arriver plus tôt ou partir plus tard ?</h2><div id="conf-options-liste"></div></div>
     <p style="margin-top:28px"><a class="btn secondaire" href="./">Retour aux logements</a></p>
   </div>
@@ -884,7 +884,7 @@ function route() {
   if (h.get("logement")) return ouvrirTunnel(h.get("logement"));
   if (q.get("caution")) {
     montrer("confirmation");
-    const t = { ok: ["Caution enregistrée.", "Merci ! Votre carte est enregistrée. Rien n'est débité : l'empreinte est bloquée la veille de votre arrivée et libérée 48 h après votre départ. Votre code d'accès arrive par email la veille."],
+    const t = { ok: ["Caution enregistrée.", "Merci ! Votre carte est enregistrée. Rien n'est débité : l'empreinte est bloquée la veille de votre arrivée et libérée 48 h après votre départ. Votre code d'accès vous est envoyé la veille de l'arrivée, dès que l'empreinte est acceptée."],
       deja: ["Caution déjà enregistrée.", "Votre carte est déjà enregistrée pour cette réservation, vous n'avez rien à faire."],
       annule: ["Caution non enregistrée.", "Vous avez quitté la page avant la fin. Reprenez le lien reçu par email quand vous voulez, avant la veille de votre arrivée."],
       invalide: ["Lien non valable.", "Ce lien de caution n'est pas valable ou a expiré. Appelez-nous au 06 15 27 25 45."],

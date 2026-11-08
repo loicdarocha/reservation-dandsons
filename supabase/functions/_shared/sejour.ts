@@ -11,21 +11,26 @@ export const gabarit = (corps: string) =>
   `<div style="font-family:Arial,sans-serif;max-width:560px;margin:auto;color:#222;line-height:1.5">${corps}<p style="margin-top:28px">À très vite,<br>Loïc – D and Sons<br><span style="color:#666">06 15 27 25 45</span></p></div>`;
 
 // ---------- Caution : lien permanent (il recrée une page Stripe à chaque clic) ----------
-export async function envoyerLienCaution(sb: SB, r: any, l: any, relance = false) {
+export async function envoyerLienCaution(sb: SB, r: any, l: any, relance = false, urgent = false) {
   let jeton = r.caution_jeton;
   if (!jeton) {
     jeton = crypto.randomUUID().replace(/-/g, "");
     await sb.from("dsons_reservations").update({ caution_jeton: jeton }).eq("id", r.id);
   }
   const url = `${FN()}/dsons-caution-lien?ref=${encodeURIComponent(r.ref)}&t=${jeton}`;
-  await envoyerEmail([r.email], `${relance ? "Rappel : " : ""}Caution de ${eur(r.caution_montant)} pour votre séjour à ${l.nom}`, gabarit(`
+  const objet = urgent
+    ? `Action requise : caution de ${eur(r.caution_montant)} pour recevoir votre code d'accès (${l.nom})`
+    : `${relance ? "Rappel : " : ""}Caution de ${eur(r.caution_montant)} pour votre séjour à ${l.nom}`;
+  await envoyerEmail([r.email], objet, gabarit(`
+    ${urgent ? `<p style="background:#fff4e5;border-radius:8px;padding:12px 14px"><b>${r.caution_statut === "echec" ? "L'empreinte n'a pas été acceptée sur votre carte." : "Votre caution n'est pas encore enregistrée."}</b> Votre code d'accès vous sera envoyé dès que l'empreinte sera acceptée. ${r.caution_statut === "echec" ? "Merci d'utiliser une autre carte (carte de crédit de préférence)." : ""}</p>` : ""}
     <h2 style="color:#1f5fd6">Votre empreinte bancaire de caution</h2>
     <p>Bonjour ${r.prenom},</p>
     <p>Votre séjour à <b>${l.nom}</b> approche : arrivée le <b>${dateFr(r.arrivee)}</b>.</p>
     <p>Comme prévu au contrat, merci d'enregistrer votre carte pour la caution de <b>${eur(r.caution_montant)}</b>. <b>Aucune somme n'est débitée</b> : le montant est seulement bloqué la veille de votre arrivée, puis libéré automatiquement 48 h après votre départ.</p>
     <p style="margin:24px 0">${bouton(url, `Enregistrer ma carte pour la caution`)}</p>
-    <p style="font-size:13px;color:#666">Paiement sécurisé par Stripe. Merci de le faire avant la veille de votre arrivée.</p>`));
+    <p style="font-size:13px;color:#666">Paiement sécurisé par Stripe. Votre code d'accès vous est envoyé la veille de l'arrivée, une fois l'empreinte acceptée.</p>`));
   const maj: Record<string, unknown> = relance ? { caution_relance_le: new Date().toISOString() } : { caution_lien_envoye_le: new Date().toISOString(), caution_statut: "lien_envoye" };
+  if (r.caution_statut === "echec") maj.caution_statut = "lien_envoye";
   await sb.from("dsons_reservations").update(maj).eq("id", r.id);
   return url;
 }

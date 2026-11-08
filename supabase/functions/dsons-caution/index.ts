@@ -1,7 +1,7 @@
 // Tâche quotidienne (pg_cron, 9h Paris) — le déroulé automatique de chaque séjour réservé en direct :
 //  1. J-7     : lien de caution envoyé au client (enregistrement de carte, sans débit) ; rappel à J-2
 //  2. J-1     : empreinte de 500 € bloquée sur la carte enregistrée (alerte à l'hôte si pas de carte)
-//  3. J-1     : code d'accès Igloohome généré pour toute la durée du séjour et envoyé par email
+//  3. J-1     : code d'accès Igloohome généré et envoyé UNIQUEMENT si l'empreinte est acceptée
 //  4. séjours longs : empreinte renouvelée avant ses 7 jours de validité Stripe
 //  5. départ + 48 h : empreinte libérée si l'hôte ne l'a pas encaissée dans Stripe
 import { admin, iso, json } from "../_shared/commun.ts";
@@ -45,22 +45,26 @@ Deno.serve(async () => {
     .lte("arrivee", jour(1)).gte("depart", jour(0));
   for (const r of aBloquer ?? []) {
     try {
-      const h = await bloquerEmpreinte(r, logementDe(r.logement_slug).nom);
+      const h = await bloquerEmpreinte(r, logementDe(r.logement_slug).nom, `-${String(r.stripe_payment_method_id).slice(-8)}`);
       await sb.from("dsons_reservations").update({ caution_pi_id: h.id, caution_statut: "bloquee", caution_bloquee_le: new Date().toISOString(), caution_erreur: null }).eq("id", r.id);
       bilan.push(`${r.ref} empreinte bloquée`);
     } catch (e) {
       const msg = (e as Error).message;
       await sb.from("dsons_reservations").update({ caution_statut: "echec", caution_erreur: msg }).eq("id", r.id);
-      await alerte(r, `L'empreinte de ${eur(r.caution_montant)} a été refusée : ${msg}. Contacte le voyageur.`);
+      await alerte(r, `L'empreinte de ${eur(r.caution_montant)} a été refusée : ${msg}. <b>Le code d'accès n'est pas envoyé.</b> Le voyageur a reçu un lien pour essayer une autre carte.`);
+      try { await envoyerLienCaution(sb, { ...r, caution_statut: "echec" }, logementDe(r.logement_slug), true, true); } catch { /* alerte déjà envoyée */ }
     }
   }
   const { data: sansCarte } = await sb.from("dsons_reservations").select("*")
     .in("statut", CONFIRMEES).in("caution_statut", ["a_bloquer", "lien_envoye"]).eq("arrivee", jour(1));
-  for (const r of sansCarte ?? []) await alerte(r, `Le voyageur arrive demain et n'a <b>pas encore enregistré sa carte</b> pour la caution de ${eur(r.caution_montant)}. Son code d'accès part quand même.`);
+  for (const r of sansCarte ?? []) {
+    await alerte(r, `Le voyageur arrive demain et n'a <b>pas encore enregistré sa carte</b> pour la caution de ${eur(r.caution_montant)}. <b>Son code d'accès ne partira qu'une fois l'empreinte acceptée.</b>`);
+    try { await envoyerLienCaution(sb, r, logementDe(r.logement_slug), true, true); } catch { /* sans gravité */ }
+  }
 
-  // 3. Code d'accès Igloohome la veille de l'arrivée
+  // 3. Code d'accès Igloohome la veille de l'arrivée — uniquement si l'empreinte est acceptée
   const { data: aCoder } = await sb.from("dsons_reservations").select("*")
-    .in("statut", CONFIRMEES).is("code_envoye_le", null)
+    .in("statut", CONFIRMEES).eq("caution_statut", "bloquee").is("code_envoye_le", null)
     .lte("arrivee", jour(1)).gte("depart", jour(0));
   for (const r of aCoder ?? []) {
     if (r.code_erreur && r.arrivee > jour(0)) continue; // déjà signalé à l'hôte hier, on ne spamme pas
