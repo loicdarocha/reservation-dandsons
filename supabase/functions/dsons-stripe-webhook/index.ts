@@ -1,8 +1,11 @@
-// Webhook Stripe : paiement confirmé → réservation payée, créée dans SuperHote, carte enregistrée pour la caution, emails envoyés
+// Webhook Stripe :
+//  - paiement du séjour → réservation confirmée, créée dans SuperHote, lien de caution si arrivée < 7 jours, emails
+//  - caution (enregistrement de carte) → carte gardée pour l'empreinte, bloquée la veille de l'arrivée
 import { admin, iso, json, nuitsEntre } from "../_shared/commun.ts";
 import { creerResaSuperHote } from "../_shared/superhote.ts";
 import { bloquerEmpreinte, stripe } from "../_shared/stripe.ts";
 import { envoyerEmail, b64, dateFr, eur } from "../_shared/email.ts";
+import { envoyerCodeAcces, envoyerLienCaution, gabarit } from "../_shared/sejour.ts";
 
 const BUCKET = "dsons-documents";
 const enc = new TextEncoder();
@@ -29,6 +32,10 @@ Deno.serve(async (req) => {
   if (!ref) return json({ ok: true });
   const sb = admin();
 
+  if (evt.type === "checkout.session.completed" && session.mode === "setup") {
+    return await cautionEnregistree(sb, ref, session);
+  }
+  if (evt.type === "checkout.session.expired" && session.mode === "setup") return json({ ok: true });
   if (evt.type === "checkout.session.expired") {
     await sb.from("dsons_reservations").update({ statut: "annulee" }).eq("ref", ref).eq("statut", "en_attente_paiement");
     return json({ ok: true });
@@ -44,16 +51,8 @@ Deno.serve(async (req) => {
   const { data: pRows } = await sb.from("dsons_parametres").select("cle, valeur");
   const p = Object.fromEntries((pRows ?? []).map((x: any) => [x.cle, x.valeur]));
 
-  // 1. Carte enregistrée pour la caution
-  const maj: Record<string, unknown> = {};
-  try {
-    const pi = await stripe(`payment_intents/${session.payment_intent}`, {}, "GET");
-    maj.stripe_customer_id = pi.customer ?? session.customer;
-    maj.stripe_payment_method_id = pi.payment_method;
-  } catch (e) {
-    maj.caution_statut = "echec";
-    maj.caution_erreur = "Carte non récupérée : " + (e as Error).message;
-  }
+  // 1. Client Stripe (réutilisé pour le lien de caution)
+  const maj: Record<string, unknown> = { stripe_customer_id: session.customer ?? null };
 
   // 2. Synchro SuperHote (bloque les nuits partout + fiche voyageur dans l'appli)
   maj.statut = "confirmee";
@@ -67,33 +66,29 @@ Deno.serve(async (req) => {
   await sb.from("dsons_reservations").update(maj).eq("ref", ref);
   Object.assign(r, maj);
 
-  // 3. Arrivée demain ou aujourd'hui : empreinte tout de suite
+  // 3. Arrivée dans moins de 7 jours : lien de caution tout de suite ; arrivée demain : code tout de suite
+  const dans7 = iso(new Date(Date.now() + 7 * 86400000));
   const demain = iso(new Date(Date.now() + 86400000));
-  if (r.arrivee <= demain && r.stripe_payment_method_id && r.caution_statut === "a_bloquer") {
-    try {
-      const h = await bloquerEmpreinte(r, l.nom);
-      await sb.from("dsons_reservations").update({ caution_pi_id: h.id, caution_statut: "bloquee", caution_bloquee_le: new Date().toISOString() }).eq("ref", ref);
-    } catch (e) {
-      await sb.from("dsons_reservations").update({ caution_statut: "echec", caution_erreur: (e as Error).message }).eq("ref", ref);
-    }
-  }
+  if (r.arrivee <= dans7) await envoyerLienCaution(sb, r, l);
+  if (r.arrivee <= demain) await envoyerCodeAcces(sb, r, l, p);
 
-  // 4. Emails avec le contrat signé
+  // 4. Emails de confirmation (contrat en pièce jointe)
   const { data: pdfBlob } = await sb.storage.from(BUCKET).download(r.contrat_path);
   const pdf = pdfBlob ? [{ filename: `Contrat-${ref}.pdf`, content: b64(new Uint8Array(await pdfBlob.arrayBuffer())) }] : [];
   const nuits = nuitsEntre(r.arrivee, r.depart).length;
 
   await envoyerEmail([r.email], `Votre séjour à ${l.nom} est confirmé (${ref})`, `
-    <div style="font-family:Georgia,serif;max-width:560px;margin:auto;color:#2b2420">
-      <h2 style="color:#9e4d30">Merci ${r.prenom}, c'est réservé !</h2>
+    <div style="font-family:Arial,sans-serif;max-width:560px;margin:auto;color:#222;line-height:1.5">
+      <h2 style="color:#1f5fd6">Merci ${r.prenom}, c'est réservé !</h2>
       <p>Nous avons bien reçu votre paiement de <b>${eur(r.montant_total)}</b>.</p>
       <p><b>${l.nom}</b> – ${l.ville}<br>
       Arrivée : ${dateFr(r.arrivee)} à partir de ${l.arrivee_heure}<br>
       Départ : ${dateFr(r.depart)} avant ${l.depart_heure}<br>
       ${nuits} nuit(s) · ${r.adultes + r.enfants} voyageur(s)</p>
-      <p><b>Caution :</b> une empreinte bancaire de ${eur(r.caution_montant)} sera réalisée sur votre carte la veille de votre arrivée. Rien n'est débité ; elle est libérée automatiquement 48 h après votre départ.</p>
+      <p><b>Caution :</b> ${r.arrivee <= dans7 ? `le lien pour enregistrer votre carte (empreinte de ${eur(r.caution_montant)}, sans débit) vient de vous être envoyé dans un email séparé.` : `un lien pour enregistrer votre carte (empreinte de ${eur(r.caution_montant)}, sans débit) vous sera envoyé 7 jours avant votre arrivée.`}</p>
+      <p><b>Code d'accès :</b> envoyé par email la veille de votre arrivée.</p>
       ${(l.options ?? []).length ? `<p><b>Options de séjour</b> (à réserver si besoin) :</p><p>${(l.options ?? []).map((o: any) => `<a href="${o.url}" style="display:inline-block;margin:0 8px 8px 0;padding:10px 14px;background:#1f5fd6;color:#fff;border-radius:8px;text-decoration:none;font-family:Arial,sans-serif;font-size:14px">${o.libelle} · ${o.prix} €</a>`).join("")}</p><p style="font-size:13px;color:#666">Le départ tardif se réserve au plus tard à 9h le matin du départ.</p>` : ""}
-      <p>Votre contrat de location signé est en pièce jointe. Les codes d'accès et le livret d'accueil vous seront envoyés avant votre arrivée.</p>
+      <p>Votre contrat de location est en pièce jointe.</p>
       <p>Une question ? ${p.telephone_hote} · ${p.email_hote}</p>
       <p>À très vite,<br>Loïc – D and Sons</p>
     </div>`, pdf);
@@ -113,9 +108,41 @@ Deno.serve(async (req) => {
       ${r.adultes} adulte(s), ${r.enfants} enfant(s)<br>
       Payé : ${eur(r.montant_total)}</p>
       <p>SuperHote : ${ok ? "réservation créée ✅ (visible dans l'appli, messagerie disponible)" : `<b style="color:#b00">ÉCHEC – à saisir manuellement pour bloquer Airbnb/Booking</b><br><small>${r.erreur}</small>`}</p>
-      <p>Caution ${eur(r.caution_montant)} : ${r.caution_statut === "echec" ? `<b style="color:#b00">problème – ${r.caution_erreur}</b>` : "empreinte programmée la veille de l'arrivée"}</p>
+      <p>Caution ${eur(r.caution_montant)} : ${r.arrivee <= dans7 ? "lien envoyé au client" : "lien envoyé automatiquement 7 jours avant l'arrivée"}</p>
       <p>Pièces d'identité (liens valables 7 jours) : ${liens.join(" · ") || "—"}</p>
     </div>`, pdf);
 
   return json({ ok: true });
 });
+
+// Le client a enregistré sa carte via le lien de caution
+async function cautionEnregistree(sb: any, ref: string, session: any) {
+  const si = await stripe(`setup_intents/${session.setup_intent}`, {}, "GET");
+  const { data: r } = await sb.from("dsons_reservations").update({
+    stripe_customer_id: si.customer ?? session.customer,
+    stripe_payment_method_id: si.payment_method,
+    caution_statut: "carte_enregistree",
+    caution_erreur: null,
+  }).eq("ref", ref).in("caution_statut", ["a_bloquer", "lien_envoye", "echec"]).select("*").maybeSingle();
+  if (!r) return json({ ok: true });
+  const { data: l } = await sb.from("dsons_logements").select("*").eq("slug", r.logement_slug).single();
+  const { data: pRows } = await sb.from("dsons_parametres").select("cle, valeur");
+  const p = Object.fromEntries((pRows ?? []).map((x: any) => [x.cle, x.valeur]));
+
+  // Arrivée aujourd'hui ou demain : empreinte bloquée tout de suite
+  if (r.arrivee <= iso(new Date(Date.now() + 86400000))) {
+    try {
+      const h = await bloquerEmpreinte(r, l.nom);
+      await sb.from("dsons_reservations").update({ caution_pi_id: h.id, caution_statut: "bloquee", caution_bloquee_le: new Date().toISOString() }).eq("id", r.id);
+    } catch (e) {
+      await sb.from("dsons_reservations").update({ caution_statut: "echec", caution_erreur: (e as Error).message }).eq("id", r.id);
+      await envoyerEmail([p.email_hote], `⚠️ Caution refusée – ${ref}`, `<p>${r.prenom} ${r.nom} (${r.telephone}) : l'empreinte de ${eur(r.caution_montant)} a été refusée. ${(e as Error).message}</p>`);
+    }
+  }
+  await envoyerEmail([r.email], `Caution enregistrée – ${l.nom}`, gabarit(`
+    <p>Bonjour ${r.prenom},</p>
+    <p>Merci, votre carte est bien enregistrée pour la caution de <b>${eur(r.caution_montant)}</b>. Rien n'est débité : l'empreinte est bloquée la veille de votre arrivée (${dateFr(r.arrivee)}) et libérée 48 h après votre départ.</p>
+    <p>Votre code d'accès vous sera envoyé la veille de votre arrivée.</p>`));
+  await envoyerEmail([p.email_hote], `✅ Caution enregistrée – ${ref} – ${l.nom}`, `<p>${r.prenom} ${r.nom} · arrivée ${r.arrivee}</p>`);
+  return json({ ok: true });
+}

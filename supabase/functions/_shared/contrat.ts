@@ -104,8 +104,9 @@ export async function genererContratPdf(opts: {
 
   nouvellePageSi(150);
   y -= 8;
-  texte("SIGNATURE DU LOCATAIRE", 10.5, bold, terre);
-  texte(`Signé électroniquement le ${new Date(r.contrat_signe_le ?? Date.now()).toLocaleString("fr-FR", { timeZone: "Europe/Paris" })} (heure de Paris) depuis l'adresse IP ${r.signature_ip ?? "-"}. Le locataire reconnaît avoir lu et accepté l'ensemble des conditions ci-dessus ("Lu et approuvé").`, 8.5);
+  texte("ACCEPTATION DU LOCATAIRE", 10.5, bold, terre);
+  texte(`Contrat accepté électroniquement le ${new Date(r.contrat_signe_le ?? Date.now()).toLocaleString("fr-FR", { timeZone: "Europe/Paris" })} (heure de Paris) depuis l'adresse IP ${r.signature_ip ?? "-"}, par ${r.prenom} ${r.nom}, qui a coché les cases suivantes :`, 8.5);
+  for (const a of Object.values(r.acceptations ?? {}) as any[]) if (a?.accepte) texte(`[X] ${a.texte}`, 8.5);
   if (opts.signaturePng) {
     const img = await pdf.embedPng(opts.signaturePng);
     const h = 70, w = Math.min(220, (img.width / img.height) * h);

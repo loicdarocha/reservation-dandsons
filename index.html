@@ -454,17 +454,14 @@ input:focus,select:focus{border-color:var(--basalte);box-shadow:0 0 0 1px var(--
       <section data-etape="3" hidden>
         <div class="bloc" style="margin-top:0">
           <h2>Votre contrat de location</h2>
-          <p>Lisez-le, puis signez avec le doigt ou la souris. Vous le recevrez en PDF par email après le paiement.</p>
+          <p>Lisez-le, puis cochez les cases ci-dessous. Vous le recevrez aussitôt en PDF par email, avec votre lien de paiement.</p>
           <div class="contrat" id="contrat" tabindex="0" aria-label="Texte du contrat"></div>
         </div>
         <div class="bloc">
-          <h2>Signature</h2>
-          <div class="signature-zone">
-            <canvas id="signature" aria-label="Zone de signature"></canvas>
-            <span class="indice" id="sig-indice">Signez ici</span>
-            <button type="button" class="effacer" id="sig-effacer">Effacer</button>
-          </div>
-          <label class="case"><input type="checkbox" id="accepte"> <span>J'ai lu et j'accepte le contrat de location, y compris l'empreinte bancaire de caution de <span class="c-caution">500</span> € réalisée la veille de mon arrivée.</span></label>
+          <h2>Acceptation</h2>
+          <label class="case"><input type="checkbox" id="accepte_contrat"> <span>J'ai lu et j'accepte le contrat de location saisonnière.</span></label>
+          <label class="case"><input type="checkbox" id="accepte_caution"> <span>J'accepte la caution de <span class="c-caution">500</span> € par empreinte bancaire : je recevrai un lien Stripe 7 jours avant mon arrivée pour enregistrer ma carte. Rien n'est débité ; l'empreinte est bloquée la veille de l'arrivée et libérée 48 h après le départ.</span></label>
+          <label class="case"><input type="checkbox" id="accepte_infos"> <span>Je certifie l'exactitude des informations et de la pièce d'identité transmises.</span></label>
         </div>
       </section>
 
@@ -489,8 +486,8 @@ input:focus,select:focus{border-color:var(--basalte);box-shadow:0 0 0 1px var(--
 <main id="vue-confirmation" class="wrap" hidden>
   <div class="confirmation">
     <h1>C'est réservé.</h1>
-    <p>Merci ! Votre paiement est validé. Vous allez recevoir par email la confirmation et votre contrat signé (référence <b id="c-ref"></b>).</p>
-    <p>Les codes d'accès et le livret d'accueil vous seront envoyés avant votre arrivée. Une question : <a href="tel:+33615272545">06 15 27 25 45</a>.</p>
+    <p>Merci ! Votre paiement est validé. Vous allez recevoir par email la confirmation de réservation avec votre contrat (référence <b id="c-ref"></b>).</p>
+    <p>Le lien de caution (empreinte de 500 €, sans débit) arrive 7 jours avant le séjour, et votre code d'accès la veille de l'arrivée. Une question : <a href="tel:+33615272545">06 15 27 25 45</a>.</p>
     <div class="conf-options" id="conf-options" hidden><h2>Arriver plus tôt ou partir plus tard ?</h2><div id="conf-options-liste"></div></div>
     <p style="margin-top:28px"><a class="btn secondaire" href="./">Retour aux logements</a></p>
   </div>
@@ -781,7 +778,7 @@ function allerEtape(n) {
   $("#btn-reserver").hidden = $("#note-reserver").hidden = n !== 1;
   document.body.classList.toggle("etape1", n === 1);
   $("#btn-suiv").textContent = n === 3 ? "Payer et réserver" : "Continuer";
-  if (n === 3) { rendreContrat(); initSignature(); }
+  if (n === 3) rendreContrat();
   afficherMsg(""); majBoutons();
   if (n > 1) window.scrollTo({ top: $("#etapes").offsetTop - 16, behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
 }
@@ -792,7 +789,7 @@ function majBoutons() {
   br.disabled = !etat.devis;
   br.textContent = etat.devis ? "Réserver" : etat.arrivee ? "Choisissez la date de départ" : "Choisissez vos dates";
   if (etat.etape === 2) ok = ["prenom", "nom", "email", "telephone"].every((k) => $("#" + k).value.trim()) && !!etat.recto;
-  if (etat.etape === 3) ok = etat.signe && $("#accepte").checked;
+  if (etat.etape === 3) ok = ["accepte_contrat", "accepte_caution", "accepte_infos"].every((k) => $("#" + k).checked);
   $("#btn-suiv").disabled = !ok;
 }
 $("#form-resa").addEventListener("input", majBoutons);
@@ -855,37 +852,11 @@ function rendreContrat() {
     ${art.map(([t, c]) => `<h4>${t}</h4><p>${echapper(c)}</p>`).join("")}`;
 }
 
-// ---------- Signature ----------
-let sigInit = false;
-function initSignature() {
-  const c = $("#signature"); const ctx = c.getContext("2d");
-  const taille = () => { const r = c.getBoundingClientRect(); const dpr = window.devicePixelRatio || 1; c.width = r.width * dpr; c.height = r.height * dpr; ctx.scale(dpr, dpr); ctx.lineWidth = 2.4; ctx.lineCap = ctx.lineJoin = "round"; ctx.strokeStyle = "#1d2a4a"; };
-  taille(); etat.signe = false; $("#sig-indice").hidden = false;
-  if (sigInit) return; sigInit = true;
-  let trace = false, der = null;
-  const pos = (e) => { const r = c.getBoundingClientRect(); return [e.clientX - r.left, e.clientY - r.top]; };
-  c.addEventListener("pointerdown", (e) => { trace = true; der = pos(e); c.setPointerCapture(e.pointerId); $("#sig-indice").hidden = true; });
-  c.addEventListener("pointermove", (e) => {
-    if (!trace) return; const p = pos(e);
-    ctx.beginPath(); ctx.moveTo(...der); ctx.lineTo(...p); ctx.stroke(); der = p;
-    if (!etat.signe) { etat.signe = true; majBoutons(); }
-  });
-  ["pointerup", "pointercancel"].forEach((t) => c.addEventListener(t, () => (trace = false)));
-  $("#sig-effacer").onclick = () => { taille(); etat.signe = false; $("#sig-indice").hidden = false; majBoutons(); };
-  window.addEventListener("resize", () => { if (etat.etape === 3 && !etat.signe) taille(); });
-}
-function signaturePng() {
-  // Fond blanc pour le PDF
-  const c = $("#signature"); const t = document.createElement("canvas"); t.width = c.width; t.height = c.height;
-  const x = t.getContext("2d"); x.fillStyle = "#fff"; x.fillRect(0, 0, t.width, t.height); x.drawImage(c, 0, 0);
-  return t.toDataURL("image/png");
-}
-
 // ---------- Envoi ----------
 async function envoyer() {
   const b = $("#btn-suiv"); b.disabled = true; b.textContent = "Préparation du paiement…";
   const fd = new FormData();
-  Object.entries({ slug: etat.l.slug, arrivee: etat.arrivee, depart: etat.depart, adultes: etat.adultes, enfants: etat.enfants, accepte: $("#accepte").checked ? "1" : "0", signature: signaturePng() }).forEach(([k, v]) => fd.append(k, v));
+  Object.entries({ slug: etat.l.slug, arrivee: etat.arrivee, depart: etat.depart, adultes: etat.adultes, enfants: etat.enfants, accepte_contrat: $("#accepte_contrat").checked ? "1" : "0", accepte_caution: $("#accepte_caution").checked ? "1" : "0", accepte_infos: $("#accepte_infos").checked ? "1" : "0" }).forEach(([k, v]) => fd.append(k, v));
   ["prenom", "nom", "email", "telephone", "adresse", "code_postal", "ville", "pays"].forEach((k) => fd.append(k, $("#" + k).value.trim()));
   fd.append("cni_recto", etat.recto);
   if (etat.verso) fd.append("cni_verso", etat.verso);
@@ -893,7 +864,8 @@ async function envoyer() {
     const r = await fetch(FN + "dsons-reserver", { method: "POST", body: fd }).then((r) => r.json());
     if (!r.paiement_url) throw new Error(r.erreur ?? "Erreur inconnue");
     $$("#etapes li").forEach((li, i) => { li.classList.toggle("faite", i < 3); i === 3 ? li.setAttribute("aria-current", "step") : li.removeAttribute("aria-current"); });
-    location.href = r.paiement_url;
+    afficherMsg("Contrat et lien de paiement envoyés par email. Redirection vers le paiement sécurisé…", "info");
+    setTimeout(() => (location.href = r.paiement_url), 1200);
   } catch (e) {
     afficherMsg(`La réservation n'a pas pu être créée : ${e.message}`, "erreur");
     b.textContent = "Payer et réserver"; majBoutons();
@@ -910,6 +882,17 @@ function route() {
   const q = new URLSearchParams(location.search);
   const h = new URLSearchParams(location.hash.slice(1));
   if (h.get("logement")) return ouvrirTunnel(h.get("logement"));
+  if (q.get("caution")) {
+    montrer("confirmation");
+    const t = { ok: ["Caution enregistrée.", "Merci ! Votre carte est enregistrée. Rien n'est débité : l'empreinte est bloquée la veille de votre arrivée et libérée 48 h après votre départ. Votre code d'accès arrive par email la veille."],
+      deja: ["Caution déjà enregistrée.", "Votre carte est déjà enregistrée pour cette réservation, vous n'avez rien à faire."],
+      annule: ["Caution non enregistrée.", "Vous avez quitté la page avant la fin. Reprenez le lien reçu par email quand vous voulez, avant la veille de votre arrivée."],
+      invalide: ["Lien non valable.", "Ce lien de caution n'est pas valable ou a expiré. Appelez-nous au 06 15 27 25 45."],
+      erreur: ["Un problème est survenu.", "La page de paiement n'a pas pu s'ouvrir. Réessayez dans quelques minutes, ou appelez-nous au 06 15 27 25 45."] }[q.get("caution")] ?? ["Caution", ""];
+    $("#vue-confirmation h1").textContent = t[0];
+    $$("#vue-confirmation .confirmation > p").forEach((el, i) => { if (i === 0) el.textContent = t[1]; else if (i === 1) el.hidden = true; });
+    return;
+  }
   if (q.get("confirmation")) {
     montrer("confirmation"); $("#c-ref").textContent = q.get("confirmation");
     const afficherOptions = () => {

@@ -48,7 +48,7 @@ export async function nuitsIcal(url: string | null): Promise<Set<string>> {
 // ---- Disponibilités complètes (SuperHote + réservations directes) ----
 export async function nuitsOccupees(sb: ReturnType<typeof admin>, logement: any): Promise<Set<string>> {
   const set = await nuitsIcal(logement.ical_url);
-  const limite = new Date(Date.now() - 35 * 60 * 1000).toISOString();
+  const limite = new Date(Date.now() - 24 * 3600 * 1000).toISOString();
   const { data } = await sb
     .from("dsons_reservations")
     .select("arrivee, depart")

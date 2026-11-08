@@ -1,7 +1,10 @@
-// POST multipart/form-data : crée la réservation, stocke CNI + signature + contrat, ouvre un paiement Stripe
+// POST multipart/form-data : crée la réservation (cases cochées), stocke la CNI, génère le contrat,
+// ouvre un paiement Stripe et envoie contrat + lien de paiement au client et à l'hôte
 import { admin, cors, devis, json, nuitsOccupees, reservable } from "../_shared/commun.ts";
 import { genererContratPdf } from "../_shared/contrat.ts";
 import { stripe } from "../_shared/stripe.ts";
+import { envoyerEmail, b64 as enB64, dateFr, eur } from "../_shared/email.ts";
+import { gabarit } from "../_shared/sejour.ts";
 
 const BUCKET = "dsons-documents";
 const MAX = 10 * 1024 * 1024;
@@ -19,10 +22,11 @@ Deno.serve(async (req) => {
   try {
     const f = await req.formData();
     const g = (k: string) => String(f.get(k) ?? "").trim();
-    const requis = ["slug", "arrivee", "depart", "prenom", "nom", "email", "telephone", "signature"];
+    const requis = ["slug", "arrivee", "depart", "prenom", "nom", "email", "telephone"];
     const manquant = requis.filter((k) => !g(k));
     if (manquant.length) return json({ erreur: "Champs manquants : " + manquant.join(", ") }, 400);
-    if (g("accepte") !== "1") return json({ erreur: "Le contrat doit être accepté" }, 400);
+    if (g("accepte_contrat") !== "1") return json({ erreur: "Le contrat de location doit être accepté" }, 400);
+    if (g("accepte_caution") !== "1") return json({ erreur: "La caution par empreinte bancaire doit être acceptée" }, 400);
     if (!/^\S+@\S+\.\S+$/.test(g("email"))) return json({ erreur: "Email invalide" }, 400);
 
     const recto = f.get("cni_recto");
@@ -61,9 +65,12 @@ Deno.serve(async (req) => {
       ? await up(`${dossier}/cni-verso.${ext(verso.type)}`, verso, verso.type)
       : null;
 
-    const b64 = g("signature").split(",")[1] ?? "";
-    const signaturePng = Uint8Array.from(atob(b64), (c) => c.charCodeAt(0));
-    const signature_path = await up(`${dossier}/signature.png`, signaturePng, "image/png");
+    const maintenant = new Date().toISOString();
+    const acceptations = {
+      contrat: { accepte: true, le: maintenant, texte: "J'ai lu et j'accepte le contrat de location saisonnière." },
+      caution: { accepte: true, le: maintenant, texte: "J'accepte la caution par empreinte bancaire, lien envoyé 7 jours avant l'arrivée." },
+      exactitude: { accepte: g("accepte_infos") === "1", le: maintenant, texte: "Je certifie l'exactitude des informations et de la pièce d'identité transmises." },
+    };
 
     const resa = {
       ref,
@@ -86,14 +93,14 @@ Deno.serve(async (req) => {
       montant_total: d.montant_total,
       cni_recto_path,
       cni_verso_path,
-      signature_path,
-      contrat_signe_le: new Date().toISOString(),
+      acceptations,
+      contrat_signe_le: maintenant,
       signature_ip: (req.headers.get("x-forwarded-for") ?? "").split(",")[0].trim() || null,
     };
 
     const { data: pRows } = await sb.from("dsons_parametres").select("cle, valeur");
     const params = Object.fromEntries((pRows ?? []).map((r: any) => [r.cle, r.valeur]));
-    const pdf = await genererContratPdf({ params, logement: l, resa: { ...resa, caution_montant: params.caution_montant ?? 500 }, signaturePng });
+    const pdf = await genererContratPdf({ params, logement: l, resa: { ...resa, caution_montant: params.caution_montant ?? 500 } });
     const contrat_path = await up(`${dossier}/contrat-${ref}.pdf`, pdf, "application/pdf");
 
     const caution = Number(params.caution_montant ?? 500);
@@ -109,22 +116,40 @@ Deno.serve(async (req) => {
       client_reference_id: ref,
       "metadata[ref]": ref,
       "payment_intent_data[metadata][ref]": ref,
-      // Carte enregistrée pour l'empreinte de caution (bloquée la veille de l'arrivée)
-      "payment_intent_data[setup_future_usage]": "off_session",
       "payment_method_types[0]": "card",
-      "custom_text[submit][message]": `En payant, vous autorisez D and Sons à réaliser une empreinte bancaire de ${caution} € (caution, non débitée) sur cette carte la veille de votre arrivée, libérée 48 h après votre départ.`,
       "payment_intent_data[description]": `${l.nom} - ${resa.arrivee} au ${resa.depart} - ${ref}`,
       "line_items[0][quantity]": "1",
       "line_items[0][price_data][currency]": "eur",
       "line_items[0][price_data][unit_amount]": String(Math.round(d.montant_total * 100)),
       "line_items[0][price_data][product_data][name]": `${l.nom} - ${d.nuits.length} nuit(s)`,
       "line_items[0][price_data][product_data][description]": `Du ${resa.arrivee} au ${resa.depart} · ${adultes + enfants} voyageur(s)`,
-      expires_at: String(Math.floor(Date.now() / 1000) + 31 * 60),
+      expires_at: String(Math.floor(Date.now() / 1000) + 23 * 3600),
       success_url: `${site}?confirmation=${ref}&logement=${l.slug}`,
       cancel_url: `${site}?logement=${l.slug}&annule=1`,
     });
 
-    await sb.from("dsons_reservations").update({ stripe_session_id: session.id }).eq("ref", ref);
+    await sb.from("dsons_reservations").update({ stripe_session_id: session.id, paiement_url: session.url }).eq("ref", ref);
+
+    // Contrat + lien de paiement : au client et à l'hôte
+    const piece = [{ filename: `Contrat-${ref}.pdf`, content: enB64(pdf) }];
+    const nuits = d.nuits.length;
+    const recap = `<p><b>${l.nom}</b> – ${l.ville}<br>Arrivée : ${dateFr(resa.arrivee)} à partir de ${l.arrivee_heure ?? "16:00"}<br>Départ : ${dateFr(resa.depart)} avant ${l.depart_heure ?? "10:00"}<br>${nuits} nuit(s) · ${adultes + enfants} voyageur(s)<br><b>Total : ${eur(d.montant_total)}</b></p>`;
+    const btnPayer = `<a href="${session.url}" style="display:inline-block;padding:13px 22px;background:#1f5fd6;color:#fff;border-radius:8px;text-decoration:none;font-weight:600">Payer mon séjour (${eur(d.montant_total)})</a>`;
+    await envoyerEmail([resa.email], `Votre contrat de location et votre paiement – ${l.nom} (${ref})`, gabarit(`
+      <h2 style="color:#1f5fd6">Merci ${resa.prenom} !</h2>
+      <p>Vous trouverez en pièce jointe votre <b>contrat de location</b>, accepté en ligne le ${new Date(maintenant).toLocaleString("fr-FR", { timeZone: "Europe/Paris" })}. Gardez-le précieusement.</p>
+      ${recap}
+      <p>Votre réservation est confirmée dès le paiement :</p>
+      <p style="margin:22px 0">${btnPayer}</p>
+      <p style="font-size:13px;color:#666">Lien valable 23 heures. Passé ce délai, les dates sont libérées.</p>
+      <p><b>Caution de ${eur(caution)} :</b> un lien pour enregistrer votre carte (empreinte, sans débit) vous sera envoyé 7 jours avant l'arrivée, ou dès le paiement si vous arrivez dans moins de 7 jours.</p>
+      <p><b>Code d'accès :</b> envoyé par email la veille de votre arrivée.</p>`), piece);
+    await envoyerEmail([params.email_hote], `📝 Contrat accepté – ${ref} – ${l.nom} (paiement en attente)`, `
+      <div style="font-family:Arial,sans-serif;color:#222">
+      <p><b>${resa.prenom} ${resa.nom}</b> · ${resa.telephone} · ${resa.email}</p>${recap}
+      <p>Contrat accepté en ligne (cases cochées) le ${new Date(maintenant).toLocaleString("fr-FR", { timeZone: "Europe/Paris" })}, IP ${resa.signature_ip ?? "-"}.</p>
+      <p>Lien de paiement envoyé au client : <a href="${session.url}">${session.url}</a></p></div>`, piece);
+
     return json({ ref, paiement_url: session.url });
   } catch (e) {
     console.error(e);
