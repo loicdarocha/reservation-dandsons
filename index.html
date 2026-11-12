@@ -5,6 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Escapades Auvergne · Réservation directe</title>
 <meta name="description" content="Réservez en direct nos logements à Cournon-d'Auvergne, Aubière et Royat : suites avec spa, salles cinéma, appartements pour curistes.">
+<link rel="preconnect" href="https://images.unsplash.com">
+<link rel="preconnect" href="https://hojcqnlkkuenobvainpf.supabase.co" crossorigin>
+<link rel="preload" as="image" href="https://images.unsplash.com/photo-1700488794920-87f9c1f07b30?auto=format&fit=crop&q=70&w=1200" imagesrcset="https://images.unsplash.com/photo-1700488794920-87f9c1f07b30?auto=format&fit=crop&q=70&w=800 800w, https://images.unsplash.com/photo-1700488794920-87f9c1f07b30?auto=format&fit=crop&q=70&w=1200 1200w, https://images.unsplash.com/photo-1700488794920-87f9c1f07b30?auto=format&fit=crop&q=70&w=2000 2000w" imagesizes="100vw">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fjalla+One&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -383,7 +386,7 @@ body{background:transparent;position:relative}
 html{background:#fbf8f5}
 body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;
   background:linear-gradient(180deg,rgba(251,248,245,.77),rgba(251,248,245,.83)),
-    url("https://images.unsplash.com/photo-1662901519019-ad5e7c5d7502?auto=format&fit=crop&w=1800&q=60") center/cover no-repeat}
+    url("https://images.unsplash.com/photo-1662901519019-ad5e7c5d7502?auto=format&fit=crop&w=1400&q=50") center/cover no-repeat}
 .engagements{background:rgba(255,255,255,.7);border-radius:16px;padding:28px 24px;backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)}
 .engagements::before{display:none}
 
@@ -514,7 +517,7 @@ button.lien{background:none;border:0;font:inherit;font-weight:600;text-decoratio
 <!-- ACCUEIL -->
 <main id="vue-accueil">
   <section class="hero-auv" aria-labelledby="titre-hero">
-    <img class="hero-photo" src="https://images.unsplash.com/photo-1700488794920-87f9c1f07b30?auto=format&fit=crop&w=2000&q=75" alt="Le puy de Dôme et la chaîne des Puys au coucher du soleil" fetchpriority="high">
+    <img class="hero-photo" src="https://images.unsplash.com/photo-1700488794920-87f9c1f07b30?auto=format&fit=crop&q=70&w=1200" srcset="https://images.unsplash.com/photo-1700488794920-87f9c1f07b30?auto=format&fit=crop&q=70&w=800 800w, https://images.unsplash.com/photo-1700488794920-87f9c1f07b30?auto=format&fit=crop&q=70&w=1200 1200w, https://images.unsplash.com/photo-1700488794920-87f9c1f07b30?auto=format&fit=crop&q=70&w=2000 2000w" sizes="100vw" alt="Le puy de Dôme et la chaîne des Puys au coucher du soleil" fetchpriority="high">
     <div class="hero-voile" aria-hidden="true"></div>
     <div class="wrap hero-texte">
       <p class="surtitre">Puy-de-Dôme · Chaîne des Puys</p>
@@ -702,6 +705,8 @@ const etat = { l: null, occ: new Set(), prix: {}, arrivee: null, depart: null, a
 
 // ---------- Accueil ----------
 async function chargerAccueil() {
+  // Affichage immédiat avec les données intégrées, mis à jour dès que le serveur répond
+  if (!logements.length) { logements = SECOURS; rendreFiltres(); if (!rech.resultats) rendreListe(rech.ville); }
   try {
     const [r, p] = await Promise.all([
       avecDelai(fetch(FN + "dsons-dispo").then((r) => r.json())).catch(() => ({ logements: SECOURS })),
@@ -711,7 +716,7 @@ async function chargerAccueil() {
     params = { ...PARAMS_SECOURS, ...Object.fromEntries((Array.isArray(p) ? p : []).map((x) => [x.cle, x.valeur])) };
     $$(".c-caution").forEach((e) => (e.textContent = params.caution_montant ?? "500"));
     rendreFiltres();
-    rendreListe("tous");
+    if (!rech.resultats) rendreListe(rech.ville);
   } catch (e) {
     $("#liste").innerHTML = `<p class="message erreur">Les logements n'ont pas pu être chargés. Rechargez la page ou appelez-nous au 06 15 27 25 45.</p>`;
   }
