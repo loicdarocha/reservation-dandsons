@@ -479,6 +479,24 @@ button.lien{background:none;border:0;font:inherit;font-weight:600;text-decoratio
 }
 .barre-haut .recherche .btn-rech,.barre-haut .recherche .btn-rech:hover:not([aria-pressed="true"]){background:var(--lave);color:#fff}
 .barre-haut .recherche .btn-rech:hover{background:var(--lave-fonce)!important}
+
+/* Onglets Dates / Flexibles, puces de tolérance, mois */
+.pop-onglets{display:flex;width:max-content;margin:0 auto 18px;background:var(--gris-clair);border-radius:999px;padding:4px}
+.pop-onglets button{border:0;background:none;border-radius:999px;padding:9px 30px;font:inherit;font-weight:600;cursor:pointer;color:var(--basalte)}
+.pop-onglets button[aria-selected="true"]{background:#fff;box-shadow:0 1px 4px rgba(0,0,0,.12)}
+.puces{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+.puces.centre{justify-content:center;margin-top:0}
+.puce{border:1px solid var(--volvic);background:#fff;border-radius:999px;padding:8px 16px;font:inherit;font-size:14px;cursor:pointer;color:var(--basalte)}
+.puce:hover{border-color:var(--basalte)}
+.puce.on{border:1.5px solid var(--basalte);font-weight:600}
+.mois-defile{display:grid;grid-auto-flow:column;grid-auto-columns:118px;gap:10px;overflow-x:auto;padding:2px 2px 8px;scroll-snap-type:x mandatory}
+.carte-mois{scroll-snap-align:start;border:1px solid var(--volvic);background:#fff;border-radius:16px;padding:16px 8px;display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;font:inherit;color:var(--basalte-doux)}
+.carte-mois b{color:var(--basalte);text-transform:capitalize;font-size:15px}
+.carte-mois small{font-size:12px}
+.carte-mois:hover{border-color:var(--basalte)}
+.carte-mois.on{border:2px solid var(--basalte);background:var(--gris-clair)}
+.dates-trouvees{margin:2px 0 0;font-size:14px;color:var(--lave-fonce);font-weight:600}
+@media (max-width:860px){.pop-onglets button{padding:8px 22px}.puces{gap:6px}.puce{padding:7px 12px;font-size:13px}}
 </style>
 </head>
 <body>
@@ -698,14 +716,17 @@ async function chargerAccueil() {
     $("#liste").innerHTML = `<p class="message erreur">Les logements n'ont pas pu être chargés. Rechargez la page ou appelez-nous au 06 15 27 25 45.</p>`;
   }
 }
-const rech = { ville: "tous", arrivee: null, depart: null, adultes: 0, enfants: 0, bebes: 0, animaux: 0, mois: null, resultats: null, champ: null };
+const rech = { mode: "dates", flex: 0, duree: "weekend", moisSel: [], ville: "tous", arrivee: null, depart: null, adultes: 0, enfants: 0, bebes: 0, animaux: 0, mois: null, resultats: null, champ: null };
 const LOUPE = `<svg viewBox="0 0 32 32" width="15" height="15" aria-hidden="true"><path d="M13 3a10 10 0 1 0 6.3 17.8l6.4 6.4 2.1-2.1-6.4-6.4A10 10 0 0 0 13 3zm0 3a7 7 0 1 1 0 14 7 7 0 0 1 0-14z" fill="currentColor"/></svg>`;
 const villeCourte = (v) => v.replace("-d'Auvergne", "");
 const nbVoyageurs = () => rech.adultes + rech.enfants;
+const DUREES = { weekend: "Un week-end", semaine: "Une semaine", mois: "Un mois" };
+const nomMois = (m, court) => new Date(m + "-01T12:00:00").toLocaleDateString("fr-FR", { month: court ? "short" : "long" });
 function texteDates() {
+  if (rech.mode === "flex") return rech.moisSel.length ? `${DUREES[rech.duree]} · ${rech.moisSel.length === 1 ? nomMois(rech.moisSel[0]) : rech.moisSel.length + " mois"}` : "Quand ?";
   if (!rech.arrivee) return "Quand ?";
   const f = (d) => versDate(d).toLocaleDateString("fr-FR", { day: "numeric", month: "short" });
-  return rech.depart ? `${f(rech.arrivee)} – ${f(rech.depart)}` : `${f(rech.arrivee)} – ?`;
+  return (rech.depart ? `${f(rech.arrivee)} – ${f(rech.depart)}` : `${f(rech.arrivee)} – ?`) + (rech.flex ? ` (± ${rech.flex} j)` : "");
 }
 function texteVoy() {
   const n = nbVoyageurs();
@@ -748,6 +769,16 @@ function ouvrirPop(champ) {
 }
 function rendrePopDates() {
   const pop = $("#pop-rech"), auj = iso(new Date());
+  const onglets = `<div class="pop-onglets" role="tablist"><button type="button" role="tab" data-mode="dates" aria-selected="${rech.mode === "dates"}">Dates</button><button type="button" role="tab" data-mode="flex" aria-selected="${rech.mode === "flex"}">Flexibles</button></div>`;
+  if (rech.mode === "flex") {
+    const debut = new Date(); debut.setDate(1);
+    const cartes = Array.from({ length: 12 }, (_, k) => { const d = new Date(debut.getFullYear(), debut.getMonth() + k, 1); const m = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+      return `<button type="button" class="carte-mois ${rech.moisSel.includes(m) ? "on" : ""}" data-mois="${m}"><svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M3.5 10h17M8 3v4M16 3v4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg><b>${d.toLocaleDateString("fr-FR", { month: "long" })}</b><small>${d.getFullYear()}</small></button>`; }).join("");
+    pop.innerHTML = onglets + `<p class="pop-titre">Quelle sera la durée de votre séjour ?</p><div class="puces centre">${Object.entries(DUREES).map(([k, t]) => `<button type="button" class="puce ${rech.duree === k ? "on" : ""}" data-duree="${k}">${t}</button>`).join("")}</div>
+      <p class="pop-titre" style="margin-top:22px">Quand souhaitez-vous partir ?</p><div class="mois-defile">${cartes}</div>
+      <div class="pop-pied"><button type="button" class="lien" data-action="effacer-dates">Effacer</button><button type="button" class="btn" data-action="chercher" ${rech.moisSel.length ? "" : "disabled"}>Rechercher</button></div>`;
+    return;
+  }
   const mois = [0, 1].map((k) => {
     const m = new Date(rech.mois.getFullYear(), rech.mois.getMonth() + k, 1);
     const decal = (m.getDay() + 6) % 7, nb = new Date(m.getFullYear(), m.getMonth() + 1, 0).getDate();
@@ -760,14 +791,19 @@ function rendrePopDates() {
     return `<div class="pop-mois"><h4>${m.toLocaleDateString("fr-FR", { month: "long", year: "numeric" })}</h4><div class="pop-grille">${c}</div></div>`;
   }).join("");
   const premier = new Date(); premier.setDate(1); premier.setHours(0, 0, 0, 0);
-  pop.innerHTML = `<div class="pop-nav"><button type="button" data-nav="-1" aria-label="Mois précédent" ${rech.mois <= premier ? "disabled" : ""}>‹</button><p class="pop-titre">${!rech.arrivee ? "Choisissez votre arrivée" : !rech.depart ? "Choisissez votre départ" : texteDates()}</p><button type="button" data-nav="1" aria-label="Mois suivant">›</button></div><div class="pop-cal">${mois}</div><div class="pop-pied"><button type="button" class="lien" data-action="effacer-dates">Effacer</button><button type="button" class="btn" data-action="chercher" ${rech.arrivee && rech.depart ? "" : "disabled"}>Rechercher</button></div>`;
+  const puces = [[0, "Dates exactes"], [1, "± 1 jour"], [2, "± 2 jours"], [3, "± 3 jours"], [7, "± 7 jours"], [14, "± 14 jours"]].map(([v, t]) => `<button type="button" class="puce ${rech.flex === v ? "on" : ""}" data-flex="${v}">${t}</button>`).join("");
+  pop.innerHTML = onglets + `<div class="pop-nav"><button type="button" data-nav="-1" aria-label="Mois précédent" ${rech.mois <= premier ? "disabled" : ""}>‹</button><p class="pop-titre">${!rech.arrivee ? "Choisissez votre arrivée" : !rech.depart ? "Choisissez votre départ" : texteDates()}</p><button type="button" data-nav="1" aria-label="Mois suivant">›</button></div><div class="pop-cal">${mois}</div><div class="puces">${puces}</div><div class="pop-pied"><button type="button" class="lien" data-action="effacer-dates">Effacer</button><button type="button" class="btn" data-action="chercher" ${rech.arrivee && rech.depart ? "" : "disabled"}>Rechercher</button></div>`;
 }
 $("#pop-rech").addEventListener("click", (e) => {
   e.stopPropagation();
   const b = e.target.closest("button"); if (!b || b.disabled) return;
   if (b.dataset.action === "chercher") return lancerRecherche();
   if (b.dataset.action === "valider-dates") { if (!nbVoyageurs()) rech.adultes = 2; return ouvrirPop("voy"); }
-  if (b.dataset.action === "effacer-dates") { rech.arrivee = rech.depart = null; return ouvrirPop("dates"); }
+  if (b.dataset.action === "effacer-dates") { rech.arrivee = rech.depart = null; rech.flex = 0; rech.moisSel = []; return ouvrirPop("dates"); }
+  if (b.dataset.mode) { rech.mode = b.dataset.mode; rendreFiltres(); return rendrePopDates(); }
+  if (b.dataset.flex) { rech.flex = Number(b.dataset.flex); rendreFiltres(); return rendrePopDates(); }
+  if (b.dataset.duree) { rech.duree = b.dataset.duree; rendreFiltres(); return rendrePopDates(); }
+  if (b.dataset.mois) { const m = b.dataset.mois; rech.moisSel = rech.moisSel.includes(m) ? rech.moisSel.filter((x) => x !== m) : [...rech.moisSel, m].sort(); rendreFiltres(); return rendrePopDates(); }
   if (b.dataset.action === "effacer-voy") { Object.assign(rech, { adultes: 0, enfants: 0, bebes: 0, animaux: 0 }); return ouvrirPop("voy"); }
   if (b.dataset.ville) { rech.ville = b.dataset.ville; ouvrirPop("dates"); return; }
   if (b.dataset.nav) { rech.mois = new Date(rech.mois.getFullYear(), rech.mois.getMonth() + Number(b.dataset.nav), 1); return rendrePopDates(); }
@@ -791,12 +827,13 @@ document.addEventListener("keydown", (e) => { if (e.key === "Escape" && rech.cha
 async function lancerRecherche() {
   ouvrirPop(null);
   if (!$("#vue-accueil").hidden || true) { if (location.hash) location.hash = ""; }
-  if (rech.arrivee && !rech.depart) rech.depart = ajout(rech.arrivee, 1);
+  if (rech.mode === "dates" && rech.arrivee && !rech.depart) rech.depart = ajout(rech.arrivee, 1);
   rendreFiltres();
-  if (rech.arrivee && rech.depart) {
+  const qs = rech.mode === "flex" ? (rech.moisSel.length ? `duree=${rech.duree}&mois=${rech.moisSel.join(",")}` : "") : (rech.arrivee && rech.depart ? `arrivee=${rech.arrivee}&depart=${rech.depart}&flex=${rech.flex}` : "");
+  if (qs) {
     $("#liste").innerHTML = `<p class="chargement">Recherche des logements libres…</p>`;
     try {
-      const r = await avecDelai(fetch(FN + `dsons-dispo?arrivee=${rech.arrivee}&depart=${rech.depart}&voyageurs=${Math.max(1, nbVoyageurs())}`).then((r) => r.json()));
+      const r = await avecDelai(fetch(FN + `dsons-dispo?${qs}&voyageurs=${Math.max(1, nbVoyageurs())}`).then((r) => r.json()), 20000);
       rech.resultats = r.logements ?? null;
     } catch { rech.resultats = null; }
   } else rech.resultats = null;
@@ -819,10 +856,10 @@ function rendreResultats(filtre) {
   const autres = visibles.filter((l) => l.sejour?.statut !== "disponible" && l.photos?.length && l.reservable);
   const n = libres.length, nuits = libres[0]?.sejour?.nuits;
   $("#liste").innerHTML =
-    `<div class="resultat-tete"><p><b>${n ? `${n} logement${n > 1 ? "s" : ""} disponible${n > 1 ? "s" : ""}` : "Aucun logement disponible"}</b> du ${dateLongue(rech.arrivee)} au ${dateLongue(rech.depart)}${nbVoyageurs() ? ` · ${nbVoyageurs()} voyageur${nbVoyageurs() > 1 ? "s" : ""}` : ""}</p><button type="button" class="lien" id="effacer-recherche">Effacer la recherche</button></div>` +
+    `<div class="resultat-tete"><p><b>${n ? `${n} logement${n > 1 ? "s" : ""} disponible${n > 1 ? "s" : ""}` : "Aucun logement disponible"}</b> ${rech.mode === "flex" ? `· ${DUREES[rech.duree].toLowerCase()} en ${rech.moisSel.map((m) => nomMois(m)).join(", ")}` : `du ${dateLongue(rech.arrivee)} au ${dateLongue(rech.depart)}${rech.flex ? ` (± ${rech.flex} jour${rech.flex > 1 ? "s" : ""})` : ""}`}${nbVoyageurs() ? ` · ${nbVoyageurs()} voyageur${nbVoyageurs() > 1 ? "s" : ""}` : ""}</p><button type="button" class="lien" id="effacer-recherche">Effacer la recherche</button></div>` +
     (n ? `<div class="annonces">${libres.map(carteAnnonce).join("")}</div>` : `<p class="message info">Essayez d'autres dates, ou appelez-nous au <a href="tel:+33615272545">06 15 27 25 45</a> : nous avons aussi des logements à Aubière et Royat.</p>`) +
     (autres.length ? `<div class="bientot-liste"><h3>Déjà réservés à ces dates</h3><p>${autres.map((l) => `${echapper(l.nom)} (${echapper(l.ville)})${l.sejour?.statut === "trop_de_voyageurs" ? " – capacité dépassée" : ""}`).join(", ")}.</p></div>` : "");
-  $("#effacer-recherche").onclick = () => { Object.assign(rech, { arrivee: null, depart: null, resultats: null }); rendreFiltres(); rendreListe(rech.ville); };
+  $("#effacer-recherche").onclick = () => { Object.assign(rech, { arrivee: null, depart: null, flex: 0, moisSel: [], resultats: null }); rendreFiltres(); rendreListe(rech.ville); };
   $$(".carte .carrousel").forEach(activerCarrousel);
 }
 const noteTxt = (l) => l.note ? `★ ${String(l.note).replace(".", ",")}${l.nb_avis ? ` (${l.nb_avis})` : ""}` : "";
@@ -839,7 +876,7 @@ function carteAnnonce(l) {
       <h3>${echapper(l.titre ?? l.nom)}</h3><span class="note">${noteTxt(l)}</span>
       <p class="ville">${echapper(l.ville)}</p>
       <p class="detail">${l.capacite} voyageurs${l.chambres ? ` · ${l.chambres} chambre` : ""}${l.lits ? ` · ${echapper(l.lits)}` : ""}</p>
-      <p class="tarif">${l.sejour?.statut === "disponible" ? `<b>${eur(l.sejour.total)}</b> au total · ${l.sejour.nuits} nuit${l.sejour.nuits > 1 ? "s" : ""}` : isFinite(prixMin) ? `À partir de <b>${eur(prixMin)}</b> par nuit` : "Sur demande"}</p>
+      ${l.sejour?.statut === "disponible" && l.sejour.arrivee && (rech.flex || rech.mode === "flex") ? `<p class="dates-trouvees">Du ${dateLongue(l.sejour.arrivee)} au ${dateLongue(l.sejour.depart)}${l.sejour.autres > 0 ? ` · ${l.sejour.autres} autre${l.sejour.autres > 1 ? "s" : ""} possibilité${l.sejour.autres > 1 ? "s" : ""}` : ""}</p>` : ""}<p class="tarif">${l.sejour?.statut === "disponible" ? `<b>${eur(l.sejour.total)}</b> au total · ${l.sejour.nuits} nuit${l.sejour.nuits > 1 ? "s" : ""}` : isFinite(prixMin) ? `À partir de <b>${eur(prixMin)}</b> par nuit` : "Sur demande"}</p>
     </div>
   </a>`;
 }
@@ -886,11 +923,13 @@ async function ouvrirTunnel(slug) {
       return;
     }
     const auj = new Date(); etat.mois = new Date(auj.getFullYear(), auj.getMonth(), 1);
-    if (rech.arrivee && rech.depart) {
+    const trouve = rech.resultats?.find((x) => x.slug === etat.l.slug)?.sejour;
+    const dA = trouve?.arrivee ?? (rech.mode === "dates" ? rech.arrivee : null), dD = trouve?.depart ?? (rech.mode === "dates" ? rech.depart : null);
+    if (dA && dD) {
       let libre = true;
-      for (let n = rech.arrivee; n < rech.depart; n = ajout(n, 1)) if (etat.occ.has(n)) libre = false;
+      for (let n = dA; n < dD; n = ajout(n, 1)) if (etat.occ.has(n)) libre = false;
       if (nbVoyageurs()) { etat.adultes = Math.max(1, Math.min(rech.adultes, etat.l.capacite ?? 16)); etat.enfants = Math.max(0, Math.min(rech.enfants, (etat.l.capacite ?? 16) - etat.adultes)); $("#o-adultes").textContent = etat.adultes; $("#o-enfants").textContent = etat.enfants; }
-      if (libre) { etat.arrivee = rech.arrivee; etat.depart = rech.depart; const d = versDate(rech.arrivee); etat.mois = new Date(d.getFullYear(), d.getMonth(), 1); calculerDevis(); }
+      if (libre) { etat.arrivee = dA; etat.depart = dD; const d = versDate(dA); etat.mois = new Date(d.getFullYear(), d.getMonth(), 1); calculerDevis(); }
     }
     if (new URLSearchParams(location.search).get("annule")) afficherMsg("Le paiement a été interrompu : vos dates ne sont pas réservées. Vous pouvez recommencer.", "info");
     rendreCalendrier(); majRecap();
