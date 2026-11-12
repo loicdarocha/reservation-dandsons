@@ -461,6 +461,7 @@ body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;
 .pop-note{font-size:13px;color:var(--thermal);background:var(--thermal-clair);border-radius:10px;padding:10px 12px;margin:6px 0 0}
 .pop-pied{display:flex;justify-content:space-between;align-items:center;margin-top:16px;padding-top:14px;border-top:1px solid var(--volvic)}
 .pop-pied .btn{border-radius:999px;padding:11px 22px}
+.pop-pied .btn:disabled{opacity:.4;cursor:default}
 button.lien{background:none;border:0;font:inherit;font-weight:600;text-decoration:underline;cursor:pointer;color:var(--basalte);padding:6px 0}
 .resultat-tete{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:8px;margin-bottom:18px}
 .resultat-tete p{margin:0}
@@ -759,12 +760,13 @@ function rendrePopDates() {
     return `<div class="pop-mois"><h4>${m.toLocaleDateString("fr-FR", { month: "long", year: "numeric" })}</h4><div class="pop-grille">${c}</div></div>`;
   }).join("");
   const premier = new Date(); premier.setDate(1); premier.setHours(0, 0, 0, 0);
-  pop.innerHTML = `<div class="pop-nav"><button type="button" data-nav="-1" aria-label="Mois précédent" ${rech.mois <= premier ? "disabled" : ""}>‹</button><p class="pop-titre">${!rech.arrivee ? "Choisissez votre arrivée" : !rech.depart ? "Choisissez votre départ" : texteDates()}</p><button type="button" data-nav="1" aria-label="Mois suivant">›</button></div><div class="pop-cal">${mois}</div><div class="pop-pied"><button type="button" class="lien" data-action="effacer-dates">Effacer</button><button type="button" class="btn" data-action="chercher">Rechercher</button></div>`;
+  pop.innerHTML = `<div class="pop-nav"><button type="button" data-nav="-1" aria-label="Mois précédent" ${rech.mois <= premier ? "disabled" : ""}>‹</button><p class="pop-titre">${!rech.arrivee ? "Choisissez votre arrivée" : !rech.depart ? "Choisissez votre départ" : texteDates()}</p><button type="button" data-nav="1" aria-label="Mois suivant">›</button></div><div class="pop-cal">${mois}</div><div class="pop-pied"><button type="button" class="lien" data-action="effacer-dates">Effacer</button><button type="button" class="btn" data-action="valider-dates" ${rech.arrivee && rech.depart ? "" : "disabled"}>Valider</button></div>`;
 }
 $("#pop-rech").addEventListener("click", (e) => {
   e.stopPropagation();
   const b = e.target.closest("button"); if (!b || b.disabled) return;
   if (b.dataset.action === "chercher") return lancerRecherche();
+  if (b.dataset.action === "valider-dates") { if (!nbVoyageurs()) rech.adultes = 2; return ouvrirPop("voy"); }
   if (b.dataset.action === "effacer-dates") { rech.arrivee = rech.depart = null; return ouvrirPop("dates"); }
   if (b.dataset.action === "effacer-voy") { Object.assign(rech, { adultes: 0, enfants: 0, bebes: 0, animaux: 0 }); return ouvrirPop("voy"); }
   if (b.dataset.ville) { rech.ville = b.dataset.ville; ouvrirPop("dates"); return; }
@@ -772,7 +774,7 @@ $("#pop-rech").addEventListener("click", (e) => {
   if (b.dataset.jour) {
     const s = b.dataset.jour;
     if (!rech.arrivee || rech.depart || s <= rech.arrivee) { rech.arrivee = s; rech.depart = null; rendreFiltres(); rendrePopDates(); }
-    else { rech.depart = s; if (!nbVoyageurs()) rech.adultes = 2; ouvrirPop("voy"); }
+    else { rech.depart = s; rendreFiltres(); rendrePopDates(); }
     return;
   }
   if (b.dataset.k) {
