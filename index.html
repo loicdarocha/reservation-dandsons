@@ -420,18 +420,76 @@ body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;
 .volcans .v-loin{fill:rgba(255,255,255,.18)}
 .hero-auv .hero-texte{padding-bottom:clamp(120px,15vw,180px)}
 .barre-haut .marque{align-items:center}
-.marque .mq-logo{flex:none;margin-right:10px;margin-top:-4px}
+
+/* Barre de recherche : destination, dates, voyageurs */
+.barre-haut{position:sticky}
+.barre-haut .recherche{gap:2px;padding:5px}
+.barre-haut .recherche button[data-champ]{min-width:0}
+.barre-haut .recherche button[data-champ] span{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:190px;font-weight:600}
+.barre-haut .recherche button[data-champ] span.court{display:none}
+.barre-haut .recherche button[data-champ][aria-pressed="true"]{background:#fff;color:var(--basalte)}
+.barre-haut .recherche button[data-champ][aria-pressed="true"] small{color:var(--basalte-doux)}
+.btn-rech{display:inline-flex;align-items:center;gap:8px;border:0;border-radius:999px;background:var(--lave);color:#fff!important;font-weight:700;font-size:14px;padding:11px 18px;margin-left:4px;cursor:pointer;flex:none}
+.btn-rech:hover{background:var(--lave-fonce)}
+.btn-rech::before{display:none!important}
+.pop-rech{position:absolute;left:50%;top:calc(100% + 8px);transform:translateX(-50%);width:min(820px,calc(100vw - 24px));background:#fff;color:var(--basalte);border-radius:24px;box-shadow:0 18px 50px rgba(0,0,0,.28);padding:24px 26px;z-index:30;max-height:calc(100vh - var(--h-entete) - 24px);overflow:auto}
+.pop-rech[data-champ="voy"],.pop-rech[data-champ="dest"]{width:min(420px,calc(100vw - 24px));left:auto;right:max(12px,calc((100vw - 1120px)/2));transform:none}
+.pop-titre{margin:0 0 14px;font-weight:700;font-size:16px;text-align:center}
+.pop-villes{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.pop-villes button{border:1px solid var(--volvic);background:#fff;border-radius:12px;padding:14px;font:inherit;font-weight:600;cursor:pointer;text-align:left}
+.pop-villes button.on,.pop-villes button:hover{border-color:var(--basalte)}
+.pop-nav{display:flex;align-items:center;justify-content:space-between}
+.pop-nav .pop-titre{margin:0}
+.pop-nav button{width:36px;height:36px;border-radius:50%;border:0;background:var(--gris-clair);font-size:20px;cursor:pointer}
+.pop-nav button:disabled{opacity:.35;cursor:default}
+.pop-cal{display:grid;grid-template-columns:1fr 1fr;gap:34px;margin-top:14px}
+.pop-mois h4{margin:0 0 10px;text-align:center;font-size:15px;text-transform:capitalize}
+.pop-grille{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;text-align:center}
+.pop-grille .js{font-size:12px;color:var(--basalte-doux);padding:6px 0}
+.pj{aspect-ratio:1/1;border:0;background:none;border-radius:50%;font:inherit;font-size:14px;font-weight:600;cursor:pointer;color:var(--basalte)}
+.pj:hover:not(:disabled){outline:1.5px solid var(--basalte)}
+.pj:disabled{color:#c8c2bc;cursor:default;text-decoration:line-through}
+.pj.dans{background:var(--thermal-clair);border-radius:0}
+.pj.debut,.pj.fin{background:var(--lave);color:#fff}
+.pop-ligne{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:16px 0;border-bottom:1px solid var(--volvic)}
+.pop-ligne:last-of-type{border-bottom:0}
+.pop-ligne b{display:block}.pop-ligne small{color:var(--basalte-doux)}
+.pop-cpt{display:flex;align-items:center;gap:14px}
+.pop-cpt button{width:34px;height:34px;border-radius:50%;border:1px solid #b9b3ad;background:#fff;font-size:18px;cursor:pointer;line-height:1}
+.pop-cpt button:disabled{opacity:.3;cursor:default}
+.pop-cpt span{min-width:16px;text-align:center;font-weight:600}
+.pop-note{font-size:13px;color:var(--thermal);background:var(--thermal-clair);border-radius:10px;padding:10px 12px;margin:6px 0 0}
+.pop-pied{display:flex;justify-content:space-between;align-items:center;margin-top:16px;padding-top:14px;border-top:1px solid var(--volvic)}
+.pop-pied .btn{border-radius:999px;padding:11px 22px}
+button.lien{background:none;border:0;font:inherit;font-weight:600;text-decoration:underline;cursor:pointer;color:var(--basalte);padding:6px 0}
+.resultat-tete{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:8px;margin-bottom:18px}
+.resultat-tete p{margin:0}
+@media (max-width:860px){
+  .barre-haut .recherche button[data-champ] span{max-width:100%}
+  .barre-haut .recherche button[data-champ]{flex:1 1 0}
+  .barre-haut .recherche button[data-champ] span.long{display:none}
+  .barre-haut .recherche button[data-champ] span.court{display:block}
+  .barre-haut .recherche button[data-champ] small{display:none}
+  .btn-rech span.long{display:none}
+  .btn-rech{padding:10px 12px}
+  .pop-rech,.pop-rech[data-champ="voy"],.pop-rech[data-champ="dest"]{left:50%;right:auto;transform:translateX(-50%);width:calc(100vw - 16px);padding:18px 16px;border-radius:18px}
+  .pop-cal{grid-template-columns:1fr;gap:18px}
+  .pop-cal .pop-mois:nth-child(2){display:none}
+}
+.barre-haut .recherche .btn-rech,.barre-haut .recherche .btn-rech:hover:not([aria-pressed="true"]){background:var(--lave);color:#fff}
+.barre-haut .recherche .btn-rech:hover{background:var(--lave-fonce)!important}
 </style>
 </head>
 <body>
 <div class="barre-haut">
   <header class="entete wrap">
     <a class="marque" href="./" aria-label="Escapades Auvergne, accueil">
-      <svg class="mq-logo" width="46" height="44" aria-hidden="true" viewBox="0 -4 50 48" overflow="visible"><polygon points="4,40 14,26 18,40" fill="#fff" stroke="rgba(26,19,15,.85)" stroke-width="1.4" stroke-linejoin="round"/><polygon points="14,26 22,14 20,30" fill="#fff" stroke="rgba(26,19,15,.85)" stroke-width="1.4" stroke-linejoin="round"/><polygon points="18,40 20,30 30,40" fill="#fff" stroke="rgba(26,19,15,.85)" stroke-width="1.4" stroke-linejoin="round"/><polygon points="22,14 26,14 25,24" fill="#fff" stroke="rgba(26,19,15,.85)" stroke-width="1.4" stroke-linejoin="round"/><polygon points="26,14 34,26 25,24" fill="#fff" stroke="rgba(26,19,15,.85)" stroke-width="1.4" stroke-linejoin="round"/><polygon points="25,24 34,26 30,40" fill="#fff" stroke="rgba(26,19,15,.85)" stroke-width="1.4" stroke-linejoin="round"/><polygon points="34,26 44,40 31,40" fill="#fff" stroke="rgba(26,19,15,.85)" stroke-width="1.4" stroke-linejoin="round"/><rect x="21.6" y="7.3" width="1.6" height="1.6" fill="#e8763a" transform="rotate(49 22.3 8.1)" opacity="0.70"/><rect x="23.6" y="4.6" width="2.6" height="2.6" fill="#e8763a" transform="rotate(46 24.9 5.9)" opacity="0.78"/><rect x="24.3" y="8.4" width="2.1" height="2.1" fill="#e8763a" transform="rotate(10 25.3 9.4)" opacity="0.90"/><rect x="19.1" y="5.5" width="1.4" height="1.4" fill="#e8763a" transform="rotate(42 19.8 6.2)" opacity="0.63"/><rect x="23.4" y="2.6" width="2.5" height="2.5" fill="#e8763a" transform="rotate(21 24.7 3.8)" opacity="0.88"/><rect x="24.1" y="4.5" width="2.0" height="2.0" fill="#e8763a" transform="rotate(53 25.1 5.5)" opacity="0.64"/><rect x="20.5" y="3.9" width="1.4" height="1.4" fill="#e8763a" transform="rotate(46 21.2 4.6)" opacity="0.88"/></svg><span class="mq-1">Escapades</span><span class="mq-2">Auvergne</span>
+      <span class="mq-1">Escapades</span><span class="mq-2">Auvergne</span>
     </a>
-    <div class="recherche" id="recherche" role="group" aria-label="Choisir une ville"></div>
+    <div class="recherche" id="recherche" role="group" aria-label="Rechercher un séjour"></div>
     <a class="tel" href="tel:+33615272545">06 15 27 25 45</a>
   </header>
+  <div class="pop-rech" id="pop-rech" hidden></div>
 </div>
 
 <!-- ACCUEIL -->
@@ -639,23 +697,130 @@ async function chargerAccueil() {
     $("#liste").innerHTML = `<p class="message erreur">Les logements n'ont pas pu être chargés. Rechargez la page ou appelez-nous au 06 15 27 25 45.</p>`;
   }
 }
+const rech = { ville: "tous", arrivee: null, depart: null, adultes: 0, enfants: 0, bebes: 0, animaux: 0, mois: null, resultats: null, champ: null };
+const LOUPE = `<svg viewBox="0 0 32 32" width="15" height="15" aria-hidden="true"><path d="M13 3a10 10 0 1 0 6.3 17.8l6.4 6.4 2.1-2.1-6.4-6.4A10 10 0 0 0 13 3zm0 3a7 7 0 1 1 0 14 7 7 0 0 1 0-14z" fill="currentColor"/></svg>`;
+const villeCourte = (v) => v.replace("-d'Auvergne", "");
+const nbVoyageurs = () => rech.adultes + rech.enfants;
+function texteDates() {
+  if (!rech.arrivee) return "Quand ?";
+  const f = (d) => versDate(d).toLocaleDateString("fr-FR", { day: "numeric", month: "short" });
+  return rech.depart ? `${f(rech.arrivee)} – ${f(rech.depart)}` : `${f(rech.arrivee)} – ?`;
+}
+function texteVoy() {
+  const n = nbVoyageurs();
+  if (!n) return "Ajouter des voyageurs";
+  return `${n} voyageur${n > 1 ? "s" : ""}${rech.bebes ? `, ${rech.bebes} bébé${rech.bebes > 1 ? "s" : ""}` : ""}${rech.animaux ? `, ${rech.animaux} animal${rech.animaux > 1 ? "aux" : ""}` : ""}`;
+}
 function rendreFiltres() {
-  const villes = [...new Set(logements.map((l) => l.ville))];
-  $("#recherche").innerHTML = [`<button type="button" aria-pressed="true" data-v="tous"><small>Destination</small><span class="long">Toutes les villes</span><span class="court">Toutes</span></button>`, ...villes.map((v) => `<button type="button" aria-pressed="false" data-v="${echapper(v)}"><small>Ville</small>${echapper(v.replace("-d'Auvergne", ""))}</button>`), `<span class="loupe" aria-hidden="true"><svg viewBox="0 0 32 32" width="14" height="14"><path d="M13 3a10 10 0 1 0 6.3 17.8l6.4 6.4 2.1-2.1-6.4-6.4A10 10 0 0 0 13 3zm0 3a7 7 0 1 1 0 14 7 7 0 0 1 0-14z" fill="currentColor"/></svg></span>`].join("");
-  $("#recherche").onclick = (e) => {
-    const b = e.target.closest("button"); if (!b) return;
-    $$("#recherche button").forEach((x) => x.setAttribute("aria-pressed", x === b));
-    if (!$("#vue-accueil").hidden) rendreListe(b.dataset.v);
-    else { location.hash = ""; setTimeout(() => rendreListe(b.dataset.v)); }
-  };
+  $("#recherche").innerHTML = `
+    <button type="button" data-champ="dest" aria-expanded="false"><small>Destination</small><span class="long">${rech.ville === "tous" ? "Toutes les villes" : echapper(villeCourte(rech.ville))}</span><span class="court">${rech.ville === "tous" ? "Où ?" : echapper(villeCourte(rech.ville))}</span></button>
+    <button type="button" data-champ="dates" aria-expanded="false"><small>Dates</small><span>${texteDates()}</span></button>
+    <button type="button" data-champ="voy" aria-expanded="false"><small>Voyageurs</small><span class="long">${texteVoy()}</span><span class="court">${nbVoyageurs() ? nbVoyageurs() + " voy." : "Qui ?"}</span></button>
+    <button type="button" class="btn-rech" data-action="chercher">${LOUPE}<span class="long">Rechercher</span></button>`;
+  $$("#recherche [data-champ]").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.champ === rech.champ)));
+}
+$("#recherche").addEventListener("click", (e) => {
+  const b = e.target.closest("button"); if (!b) return;
+  if (b.dataset.action === "chercher") return lancerRecherche();
+  ouvrirPop(rech.champ === b.dataset.champ ? null : b.dataset.champ);
+});
+function ouvrirPop(champ) {
+  rech.champ = champ;
+  const pop = $("#pop-rech");
+  rendreFiltres();
+  $$("#recherche [data-champ]").forEach((b) => b.setAttribute("aria-expanded", String(b.dataset.champ === champ)));
+  if (!champ) { pop.hidden = true; return; }
+  pop.hidden = false;
+  pop.dataset.champ = champ;
+  if (champ === "dest") {
+    const villes = [...new Set(logements.map((l) => l.ville))];
+    pop.innerHTML = `<p class="pop-titre">Où voulez-vous séjourner ?</p><div class="pop-villes">${["tous", ...villes].map((v) => `<button type="button" data-ville="${echapper(v)}" class="${rech.ville === v ? "on" : ""}">${v === "tous" ? "Toutes les villes" : echapper(villeCourte(v))}</button>`).join("")}</div>`;
+  } else if (champ === "dates") {
+    if (!rech.mois) { const d = rech.arrivee ? versDate(rech.arrivee) : new Date(); rech.mois = new Date(d.getFullYear(), d.getMonth(), 1); }
+    rendrePopDates();
+  } else {
+    const ligne = (k, t, st) => `<div class="pop-ligne"><div><b>${t}</b><small>${st}</small></div><div class="pop-cpt"><button type="button" data-k="${k}" data-d="-1" ${rech[k] ? "" : "disabled"} aria-label="Retirer">−</button><span>${rech[k]}</span><button type="button" data-k="${k}" data-d="1" aria-label="Ajouter">+</button></div></div>`;
+    pop.innerHTML = ligne("adultes", "Adultes", "13 ans et plus") + ligne("enfants", "Enfants", "De 2 à 12 ans") + ligne("bebes", "Bébés", "Moins de 2 ans") + ligne("animaux", "Animaux domestiques", "Uniquement sur accord préalable") +
+      (rech.animaux ? `<p class="pop-note">Les animaux ne sont acceptés qu'avec notre accord : appelez-nous au <a href="tel:+33615272545">06 15 27 25 45</a> avant de réserver.</p>` : "") +
+      `<div class="pop-pied"><button type="button" class="lien" data-action="effacer-voy">Effacer</button><button type="button" class="btn" data-action="chercher">Rechercher</button></div>`;
+  }
+}
+function rendrePopDates() {
+  const pop = $("#pop-rech"), auj = iso(new Date());
+  const mois = [0, 1].map((k) => {
+    const m = new Date(rech.mois.getFullYear(), rech.mois.getMonth() + k, 1);
+    const decal = (m.getDay() + 6) % 7, nb = new Date(m.getFullYear(), m.getMonth() + 1, 0).getDate();
+    let c = ["L", "M", "M", "J", "V", "S", "D"].map((j) => `<span class="js">${j}</span>`).join("") + `<span></span>`.repeat(decal);
+    for (let d = 1; d <= nb; d++) {
+      const s = iso(new Date(m.getFullYear(), m.getMonth(), d));
+      const cl = [s === rech.arrivee ? "debut" : "", s === rech.depart ? "fin" : "", rech.arrivee && rech.depart && s > rech.arrivee && s < rech.depart ? "dans" : ""].join(" ");
+      c += `<button type="button" class="pj ${cl}" data-jour="${s}" ${s < auj ? "disabled" : ""}>${d}</button>`;
+    }
+    return `<div class="pop-mois"><h4>${m.toLocaleDateString("fr-FR", { month: "long", year: "numeric" })}</h4><div class="pop-grille">${c}</div></div>`;
+  }).join("");
+  const premier = new Date(); premier.setDate(1); premier.setHours(0, 0, 0, 0);
+  pop.innerHTML = `<div class="pop-nav"><button type="button" data-nav="-1" aria-label="Mois précédent" ${rech.mois <= premier ? "disabled" : ""}>‹</button><p class="pop-titre">${!rech.arrivee ? "Choisissez votre arrivée" : !rech.depart ? "Choisissez votre départ" : texteDates()}</p><button type="button" data-nav="1" aria-label="Mois suivant">›</button></div><div class="pop-cal">${mois}</div><div class="pop-pied"><button type="button" class="lien" data-action="effacer-dates">Effacer</button><button type="button" class="btn" data-action="chercher">Rechercher</button></div>`;
+}
+$("#pop-rech").addEventListener("click", (e) => {
+  e.stopPropagation();
+  const b = e.target.closest("button"); if (!b || b.disabled) return;
+  if (b.dataset.action === "chercher") return lancerRecherche();
+  if (b.dataset.action === "effacer-dates") { rech.arrivee = rech.depart = null; return ouvrirPop("dates"); }
+  if (b.dataset.action === "effacer-voy") { Object.assign(rech, { adultes: 0, enfants: 0, bebes: 0, animaux: 0 }); return ouvrirPop("voy"); }
+  if (b.dataset.ville) { rech.ville = b.dataset.ville; ouvrirPop("dates"); return; }
+  if (b.dataset.nav) { rech.mois = new Date(rech.mois.getFullYear(), rech.mois.getMonth() + Number(b.dataset.nav), 1); return rendrePopDates(); }
+  if (b.dataset.jour) {
+    const s = b.dataset.jour;
+    if (!rech.arrivee || rech.depart || s <= rech.arrivee) { rech.arrivee = s; rech.depart = null; rendreFiltres(); rendrePopDates(); }
+    else { rech.depart = s; if (!nbVoyageurs()) rech.adultes = 2; ouvrirPop("voy"); }
+    return;
+  }
+  if (b.dataset.k) {
+    const k = b.dataset.k, v = rech[k] + Number(b.dataset.d);
+    const max = { adultes: 16, enfants: 10, bebes: 5, animaux: 3 }[k];
+    if (v < 0 || v > max) return;
+    rech[k] = v;
+    if (k !== "adultes" && v > 0 && !rech.adultes) rech.adultes = 1;
+    ouvrirPop("voy");
+  }
+});
+document.addEventListener("click", (e) => { if (rech.champ && !e.composedPath().some((n) => n.id === "pop-rech" || n.id === "recherche")) ouvrirPop(null); });
+document.addEventListener("keydown", (e) => { if (e.key === "Escape" && rech.champ) ouvrirPop(null); });
+async function lancerRecherche() {
+  ouvrirPop(null);
+  if (!$("#vue-accueil").hidden || true) { if (location.hash) location.hash = ""; }
+  if (rech.arrivee && !rech.depart) rech.depart = ajout(rech.arrivee, 1);
+  rendreFiltres();
+  if (rech.arrivee && rech.depart) {
+    $("#liste").innerHTML = `<p class="chargement">Recherche des logements libres…</p>`;
+    try {
+      const r = await avecDelai(fetch(FN + `dsons-dispo?arrivee=${rech.arrivee}&depart=${rech.depart}&voyageurs=${Math.max(1, nbVoyageurs())}`).then((r) => r.json()));
+      rech.resultats = r.logements ?? null;
+    } catch { rech.resultats = null; }
+  } else rech.resultats = null;
+  rendreListe(rech.ville);
+  setTimeout(() => document.getElementById("logements")?.scrollIntoView({ behavior: "smooth" }), 50);
 }
 function rendreListe(filtre) {
+  if (rech.resultats) return rendreResultats(filtre);
   const visibles = logements.filter((l) => filtre === "tous" || l.ville === filtre);
   const avecPhotos = visibles.filter((l) => l.photos?.length);
   const sans = visibles.filter((l) => !l.photos?.length);
   $("#liste").innerHTML =
     (avecPhotos.length ? `<div class="annonces">${avecPhotos.map(carteAnnonce).join("")}</div>` : "") +
     (sans.length ? `<div class="bientot-liste"><h3>Bientôt en réservation directe</h3><p>${sans.map((l) => `${echapper(l.nom)} (${echapper(l.ville)})`).join(", ")}. En attendant, appelez-nous au <a href="tel:+33615272545">06 15 27 25 45</a>.</p></div>` : "");
+  $$(".carte .carrousel").forEach(activerCarrousel);
+}
+function rendreResultats(filtre) {
+  const visibles = rech.resultats.filter((l) => filtre === "tous" || l.ville === filtre);
+  const libres = visibles.filter((l) => l.sejour?.statut === "disponible" && l.photos?.length);
+  const autres = visibles.filter((l) => l.sejour?.statut !== "disponible" && l.photos?.length && l.reservable);
+  const n = libres.length, nuits = libres[0]?.sejour?.nuits;
+  $("#liste").innerHTML =
+    `<div class="resultat-tete"><p><b>${n ? `${n} logement${n > 1 ? "s" : ""} disponible${n > 1 ? "s" : ""}` : "Aucun logement disponible"}</b> du ${dateLongue(rech.arrivee)} au ${dateLongue(rech.depart)}${nbVoyageurs() ? ` · ${nbVoyageurs()} voyageur${nbVoyageurs() > 1 ? "s" : ""}` : ""}</p><button type="button" class="lien" id="effacer-recherche">Effacer la recherche</button></div>` +
+    (n ? `<div class="annonces">${libres.map(carteAnnonce).join("")}</div>` : `<p class="message info">Essayez d'autres dates, ou appelez-nous au <a href="tel:+33615272545">06 15 27 25 45</a> : nous avons aussi des logements à Aubière et Royat.</p>`) +
+    (autres.length ? `<div class="bientot-liste"><h3>Déjà réservés à ces dates</h3><p>${autres.map((l) => `${echapper(l.nom)} (${echapper(l.ville)})${l.sejour?.statut === "trop_de_voyageurs" ? " – capacité dépassée" : ""}`).join(", ")}.</p></div>` : "");
+  $("#effacer-recherche").onclick = () => { Object.assign(rech, { arrivee: null, depart: null, resultats: null }); rendreFiltres(); rendreListe(rech.ville); };
   $$(".carte .carrousel").forEach(activerCarrousel);
 }
 const noteTxt = (l) => l.note ? `★ ${String(l.note).replace(".", ",")}${l.nb_avis ? ` (${l.nb_avis})` : ""}` : "";
@@ -672,7 +837,7 @@ function carteAnnonce(l) {
       <h3>${echapper(l.titre ?? l.nom)}</h3><span class="note">${noteTxt(l)}</span>
       <p class="ville">${echapper(l.ville)}</p>
       <p class="detail">${l.capacite} voyageurs${l.chambres ? ` · ${l.chambres} chambre` : ""}${l.lits ? ` · ${echapper(l.lits)}` : ""}</p>
-      <p class="tarif">${isFinite(prixMin) ? `À partir de <b>${eur(prixMin)}</b> par nuit` : "Sur demande"}</p>
+      <p class="tarif">${l.sejour?.statut === "disponible" ? `<b>${eur(l.sejour.total)}</b> au total · ${l.sejour.nuits} nuit${l.sejour.nuits > 1 ? "s" : ""}` : isFinite(prixMin) ? `À partir de <b>${eur(prixMin)}</b> par nuit` : "Sur demande"}</p>
     </div>
   </a>`;
 }
@@ -719,6 +884,12 @@ async function ouvrirTunnel(slug) {
       return;
     }
     const auj = new Date(); etat.mois = new Date(auj.getFullYear(), auj.getMonth(), 1);
+    if (rech.arrivee && rech.depart) {
+      let libre = true;
+      for (let n = rech.arrivee; n < rech.depart; n = ajout(n, 1)) if (etat.occ.has(n)) libre = false;
+      if (nbVoyageurs()) { etat.adultes = Math.max(1, Math.min(rech.adultes, etat.l.capacite ?? 16)); etat.enfants = Math.max(0, Math.min(rech.enfants, (etat.l.capacite ?? 16) - etat.adultes)); $("#o-adultes").textContent = etat.adultes; $("#o-enfants").textContent = etat.enfants; }
+      if (libre) { etat.arrivee = rech.arrivee; etat.depart = rech.depart; const d = versDate(rech.arrivee); etat.mois = new Date(d.getFullYear(), d.getMonth(), 1); calculerDevis(); }
+    }
     if (new URLSearchParams(location.search).get("annule")) afficherMsg("Le paiement a été interrompu : vos dates ne sont pas réservées. Vous pouvez recommencer.", "info");
     rendreCalendrier(); majRecap();
   } catch (e) {
