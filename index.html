@@ -512,6 +512,10 @@ button.lien{background:none;border:0;font:inherit;font-weight:600;text-decoratio
   .pop-grille .js{padding:2px 0}
   .puces{margin-top:12px}
 }
+
+/* iPhone : pas de zoom au double appui sur les boutons (le zoom à deux doigts reste possible) */
+html,body,button,a,input,select,label,.pop-rech,.recherche,.compteur{touch-action:manipulation}
+@media (max-width:860px){input[type=text],input[type=email],input[type=tel],select,textarea{font-size:16px}}
 </style>
 </head>
 <body>
