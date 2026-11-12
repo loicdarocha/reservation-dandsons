@@ -2,27 +2,30 @@
 <html lang="fr">
 <head>
 <meta charset="utf-8">
+<meta name="theme-color" content="#13100d">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Escapades Auvergne · Réservation directe</title>
 <meta name="description" content="Réservez en direct nos logements à Cournon-d'Auvergne, Aubière et Royat : suites avec spa, salles cinéma, appartements pour curistes.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 :root{
-  --basalte:#222222;      /* texte */
-  --basalte-doux:#6a6a6a; /* texte secondaire */
-  --lave:#1f5fd6;         /* bleu Escapades Auvergne */
-  --lave-fonce:#1849a8;
-  --volvic:#dddddd;       /* bordures */
-  --brume:#ffffff;        /* fond */
-  --blanc:#ffffff;
-  --gris-clair:#f7f7f7;
-  --thermal:#1849a8;
-  --thermal-clair:#eef3fd;
-  --erreur:#c13515;
+  --basalte:#f2ebe1;      /* texte crème */
+  --basalte-doux:#b5a797; /* texte secondaire */
+  --lave:#e8763a;         /* orange lave */
+  --lave-fonce:#ffa06b;   /* lave claire (texte sur fond sombre) */
+  --volvic:#3b322b;       /* bordures */
+  --brume:#13100d;        /* fond basalte */
+  --blanc:#1e1915;        /* panneaux */
+  --gris-clair:#28211c;
+  --thermal:#ffb68d;
+  --thermal-clair:rgba(232,118,58,.14);
+  --erreur:#ff7d6e;
+  --encre:#13100d;        /* texte sur fond clair */
+  --creme:#f2ebe1;
   --rayon:8px;
-  --serif:"Plus Jakarta Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --serif:"Fraunces", Georgia, "Times New Roman", serif;
   --sans:"Plus Jakarta Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
 }
 *{box-sizing:border-box}
@@ -283,7 +286,7 @@ body{font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased}
 .intro h1,.intro h2{font-size:26px;font-weight:700;letter-spacing:-.02em;margin:0;font-family:var(--sans)}
 
 /* En-tête immersif : la chaîne des Puys */
-.hero-auv{position:relative;min-height:clamp(420px,62vh,620px);display:flex;align-items:flex-end;overflow:hidden;background:#2c3e57;color:#fff;isolation:isolate}
+.hero-auv{position:relative;min-height:clamp(420px,62vh,620px);display:flex;align-items:flex-end;overflow:hidden;background:#2a1f18;color:#fff;isolation:isolate}
 .hero-photo{position:absolute;inset:0;width:100%;height:115%;object-fit:cover;object-position:center 55%;z-index:-2;will-change:transform;transform:translateY(var(--parallaxe,0px)) scale(1.04);animation:hero-entree 1.6s ease-out both}
 .hero-voile{position:absolute;inset:0;z-index:-1;background:linear-gradient(180deg,rgba(10,18,32,.15) 0%,rgba(10,18,32,.25) 40%,rgba(10,18,32,.72) 100%)}
 .hero-texte{position:relative;padding-top:120px;padding-bottom:clamp(88px,12vw,140px);max-width:1120px;width:100%}
@@ -376,13 +379,75 @@ input:focus,select:focus{border-color:var(--basalte);box-shadow:0 0 0 1px var(--
 .depot label.zone.ok{border-color:var(--lave);background:var(--thermal-clair)}
 .contrat,canvas#signature{border-radius:12px}
 .confirmation h1{font-family:var(--sans);font-weight:700;letter-spacing:-.02em}
+
+/* ===== Thème nuit volcanique ===== */
+html{background:var(--brume);color-scheme:dark}
+body{background:
+  radial-gradient(900px 520px at 85% -5%, rgba(232,118,58,.13), transparent 60%),
+  radial-gradient(700px 500px at -10% 40%, rgba(120,60,30,.12), transparent 60%),
+  var(--brume);background-attachment:fixed}
+a{color:var(--lave-fonce)}
+input,select,textarea,button{color:inherit}
+::selection{background:rgba(232,118,58,.4)}
+.barre-haut{background:rgba(19,16,13,.78);backdrop-filter:saturate(140%) blur(14px);-webkit-backdrop-filter:saturate(140%) blur(14px);border-bottom:1px solid rgba(255,255,255,.07)}
+.marque{color:var(--creme)}
+.marque svg{color:var(--lave)}
+.entete a.tel{border-color:var(--volvic);color:var(--creme)}
+.entete a.tel:hover{border-color:var(--lave);box-shadow:none}
+.recherche{background:rgba(255,255,255,.04);border-color:var(--volvic);box-shadow:none}
+.recherche button{color:var(--basalte-doux)}
+.recherche button small{color:var(--basalte-doux)}
+.recherche button[aria-pressed="true"]{background:var(--lave);color:var(--encre)}
+.recherche button[aria-pressed="true"] small{color:var(--encre)}
+.recherche button:hover:not([aria-pressed="true"]){background:rgba(255,255,255,.06);color:var(--creme)}
+.recherche .loupe{color:var(--encre)}
+.hero-voile{background:linear-gradient(180deg,rgba(19,16,13,.25) 0%,rgba(19,16,13,.15) 35%,rgba(19,16,13,.85) 100%)}
+.hero-texte h1{font-family:var(--serif);font-weight:600;letter-spacing:-.02em;font-size:clamp(38px,6.4vw,72px)}
+.hero-texte .surtitre{color:#ffb98f}
+.btn-hero{background:var(--lave);color:var(--encre)}
+.btn-hero::after{color:var(--encre)}
+.volcans .v-loin{fill:rgba(232,118,58,.38)}
+.intro h1,.intro h2{font-family:var(--serif);font-weight:600;font-size:clamp(28px,3.4vw,40px);letter-spacing:-.01em}
+.a-proximite li{background:rgba(255,255,255,.05);border:1px solid var(--volvic);color:var(--creme)}
+.a-proximite li::before{color:var(--lave)}
+.badge{background:rgba(19,16,13,.72);color:var(--creme);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);box-shadow:none}
+.carrousel{background:var(--gris-clair)}
+.carrousel .fl{background:rgba(242,235,225,.92);color:var(--encre)}
+.points i.on{background:var(--creme)}
+.carte-info h3{color:var(--creme)}
+.carte{transition:transform .25s ease}
+.carte:hover{transform:translateY(-3px)}
+.bientot-liste{background:var(--blanc);border:1px solid var(--volvic)}
+.bientot-liste h3,.engagements h3,.fiche h2,.recap h2,.bloc>h2,.contrat h3,.tunnel-tete h1,.confirmation h1{font-family:var(--serif);font-weight:600}
+.engagements::before{border-top-color:var(--volvic)}
+.btn{color:var(--encre)}
+.btn:hover{background:#ff8a4c}
+.btn:disabled{background:var(--volvic);color:var(--basalte-doux)}
+.btn.secondaire{background:transparent;border:1px solid var(--volvic);color:var(--creme)}
+.btn.secondaire:hover{background:rgba(255,255,255,.06);color:var(--creme)}
+.galerie .tout{background:rgba(19,16,13,.8);border-color:var(--volvic);color:var(--creme)}
+.carte-activer span{background:var(--creme);color:var(--encre)}
+.vis-fermer,.vis-fl{background:var(--creme);color:var(--encre)}
+.jour{background:transparent;color:var(--creme)}
+.jour:disabled{color:#5d534a}
+.jour.depart-ok{background:transparent;color:var(--creme)}
+.jour.dans{background:rgba(232,118,58,.2)}
+.jour.debut,.jour.fin{background:var(--lave);color:var(--encre)}
+.jour small{color:var(--basalte-doux)}
+.jour.debut small,.jour.fin small{color:var(--encre)}
+.message.erreur{background:rgba(255,125,110,.12)}
+input[type=text],input[type=email],input[type=tel],select{background:var(--gris-clair);color:var(--creme)}
+input:focus,select:focus{border-color:var(--lave)}
+.contrat{background:var(--gris-clair)}
+.recap{background:var(--blanc);border-color:var(--volvic);box-shadow:0 18px 50px rgba(0,0,0,.35)}
+footer{color:var(--basalte-doux)}
 </style>
 </head>
 <body>
 <div class="barre-haut">
   <header class="entete wrap">
     <a class="marque" href="./" aria-label="Escapades Auvergne, accueil">
-      <svg viewBox="0 0 32 32" width="30" height="30" aria-hidden="true"><path d="M16 3 3 14v15h9v-9h8v9h9V14z" fill="currentColor"/></svg>
+      <svg viewBox="0 0 32 32" width="30" height="30" aria-hidden="true"><path d="M1 29 11.5 11h3l1.5 2.2L17.5 11h3L31 29z" fill="currentColor"/><path d="M13 7.5c1-1.6 2.6-2.3 3.4-4.5.9 1.6.5 3.1-.3 4.4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
       <span>Escapades Auvergne</span>
     </a>
     <div class="recherche" id="recherche" role="group" aria-label="Choisir une ville"></div>
