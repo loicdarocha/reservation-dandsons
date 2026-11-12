@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Escapades Auvergne · Réservation directe</title>
 <meta name="description" content="Réservez en direct nos logements à Cournon-d'Auvergne, Aubière et Royat : suites avec spa, salles cinéma, appartements pour curistes.">
 <link rel="preconnect" href="https://images.unsplash.com">
@@ -500,6 +500,18 @@ button.lien{background:none;border:0;font:inherit;font-weight:600;text-decoratio
 .carte-mois.on{border:2px solid var(--basalte);background:var(--gris-clair)}
 .dates-trouvees{margin:2px 0 0;font-size:14px;color:var(--lave-fonce);font-weight:600}
 @media (max-width:860px){.pop-onglets button{padding:8px 22px}.puces{gap:6px}.puce{padding:7px 12px;font-size:13px}}
+
+/* Téléphone : fenêtre de recherche qui tient au-dessus de la barre Safari */
+@media (max-width:860px){
+  .pop-rech,.pop-rech[data-champ="voy"],.pop-rech[data-champ="dest"]{position:fixed;top:calc(var(--h-entete) + 6px);max-height:calc(100dvh - var(--h-entete) - 96px);max-height:calc(100svh - var(--h-entete) - 96px);overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;padding-bottom:0}
+  .pop-pied{position:sticky;bottom:0;background:#fff;margin:12px -16px 0;padding:12px 16px calc(14px + env(safe-area-inset-bottom,0px));box-shadow:0 -8px 16px rgba(255,255,255,.95)}
+  .pop-onglets{margin-bottom:12px}
+  .pop-cal{margin-top:8px}
+  .pop-mois h4{margin-bottom:4px}
+  .pj{aspect-ratio:auto;height:40px;border-radius:999px}
+  .pop-grille .js{padding:2px 0}
+  .puces{margin-top:12px}
+}
 </style>
 </head>
 <body>
