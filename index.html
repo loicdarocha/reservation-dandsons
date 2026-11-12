@@ -516,6 +516,13 @@ button.lien{background:none;border:0;font:inherit;font-weight:600;text-decoratio
 /* iPhone : pas de zoom au double appui sur les boutons (le zoom à deux doigts reste possible) */
 html,body,button,a,input,select,label,.pop-rech,.recherche,.compteur{touch-action:manipulation}
 @media (max-width:860px){input[type=text],input[type=email],input[type=tel],select,textarea{font-size:16px}}
+
+@media (max-width:860px){
+  .pop-rech[data-champ="dest"]{padding-bottom:16px}
+  .pop-villes{gap:6px}
+  .pop-villes button{padding:10px 12px;font-size:15px;border-radius:10px}
+  .pop-rech .pop-titre{font-size:15px;margin-bottom:10px}
+}
 </style>
 </head>
 <body>
