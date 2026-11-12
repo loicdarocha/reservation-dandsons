@@ -1,9 +1,9 @@
 // Crée la réservation directe dans SuperHote (API publique) :
 // elle bloque les nuits sur Airbnb/Booking, apparaît dans l'appli avec le voyageur, et déclenche messages, tâches et codes.
 export async function creerResaSuperHote(l: any, r: any) {
-  const base = (Deno.env.get("SUPERHOTE_API_URL") ?? "").replace(/\/$/, "");
+  const base = (Deno.env.get("SUPERHOTE_API_URL") ?? "https://connect.superhote.com/api/v2/public").replace(/\/$/, "");
   const key = Deno.env.get("SUPERHOTE_API_KEY");
-  if (!base || !key) throw new Error("SuperHote non configuré (SUPERHOTE_API_URL / SUPERHOTE_API_KEY)");
+  if (!key) throw new Error("SuperHote non configuré (SUPERHOTE_API_KEY)");
   if (!l.superhote_id) throw new Error(`Logement ${l.nom} non relié à SuperHote (superhote_id vide)`);
 
   const corps = {
