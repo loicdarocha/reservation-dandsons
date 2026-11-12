@@ -279,8 +279,38 @@ body{font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased}
   .recherche button small,.recherche .loupe,.recherche .long{display:none}
   .recherche .court{display:inline}
 }
-.intro{padding-top:28px;padding-bottom:4px}
-.intro h1{font-size:26px;font-weight:700;letter-spacing:-.02em;margin:0;font-family:var(--sans)}
+.intro{padding-top:28px;padding-bottom:4px;scroll-margin-top:90px}
+.intro h1,.intro h2{font-size:26px;font-weight:700;letter-spacing:-.02em;margin:0;font-family:var(--sans)}
+
+/* En-tête immersif : la chaîne des Puys */
+.hero-auv{position:relative;min-height:clamp(420px,62vh,620px);display:flex;align-items:flex-end;overflow:hidden;background:#2c3e57;color:#fff;isolation:isolate}
+.hero-photo{position:absolute;inset:0;width:100%;height:115%;object-fit:cover;object-position:center 55%;z-index:-2;will-change:transform;transform:translateY(var(--parallaxe,0px)) scale(1.04);animation:hero-entree 1.6s ease-out both}
+.hero-voile{position:absolute;inset:0;z-index:-1;background:linear-gradient(180deg,rgba(10,18,32,.15) 0%,rgba(10,18,32,.25) 40%,rgba(10,18,32,.72) 100%)}
+.hero-texte{position:relative;padding-top:120px;padding-bottom:clamp(88px,12vw,140px);max-width:1120px;width:100%}
+.hero-texte .surtitre{margin:0 0 10px;font-size:13px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#ffd9a8}
+.hero-texte h1{margin:0;font-family:var(--sans);font-weight:800;font-size:clamp(34px,6vw,64px);line-height:1.02;letter-spacing:-.03em;max-width:14ch;text-shadow:0 2px 24px rgba(0,0,0,.35)}
+.hero-texte .accroche{margin:16px 0 26px;max-width:46ch;font-size:clamp(16px,1.6vw,19px);color:rgba(255,255,255,.92)}
+.btn-hero{display:inline-flex;align-items:center;gap:8px;background:#fff;color:var(--basalte);padding:13px 22px;border-radius:999px;font-weight:700;font-size:15px;text-decoration:none;box-shadow:0 8px 24px rgba(0,0,0,.25);transition:transform .2s ease,box-shadow .2s ease}
+.btn-hero::after{content:"↓";color:var(--lave)}
+.btn-hero:hover{transform:translateY(-2px);box-shadow:0 12px 28px rgba(0,0,0,.3)}
+.volcans{position:absolute;left:0;right:0;bottom:-1px;width:100%;height:clamp(60px,9vw,130px);display:block}
+.volcans .v-loin{fill:rgba(255,255,255,.35)}
+.volcans .v-pres{fill:var(--brume)}
+@keyframes hero-entree{from{opacity:0;transform:scale(1.1)}to{opacity:1}}
+@media (prefers-reduced-motion:reduce){.hero-photo{animation:none;transform:none}}
+.a-proximite{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;padding-top:8px;font-size:14px;color:var(--basalte-doux)}
+.a-proximite span{font-weight:700;color:var(--basalte)}
+.a-proximite ul{display:flex;flex-wrap:wrap;gap:8px;margin:0;padding:0;list-style:none}
+.a-proximite li{padding:6px 12px;border-radius:999px;background:var(--thermal-clair);color:var(--lave-fonce);font-weight:600}
+.a-proximite li::before{content:"▲ ";font-size:10px;color:#c96a2b}
+
+/* Carte : le défilement de la page n'est plus capturé par la carte */
+.carte-cadre{position:relative;border-radius:14px;overflow:hidden}
+.carte-cadre .carte-osm{pointer-events:none}
+.carte-cadre.active .carte-osm{pointer-events:auto}
+.carte-activer{position:absolute;inset:0;display:flex;align-items:flex-end;justify-content:center;padding:14px;border:0;background:linear-gradient(180deg,transparent 60%,rgba(0,0,0,.18));cursor:pointer;font:inherit}
+.carte-activer span{background:#fff;color:var(--basalte);border-radius:999px;padding:8px 16px;font-size:14px;font-weight:700;box-shadow:0 2px 10px rgba(0,0,0,.2)}
+.carte-cadre.active .carte-activer{display:none}
 .intro p{margin:6px 0 0;color:var(--basalte-doux)}
 #liste{padding-top:24px}
 
@@ -362,9 +392,29 @@ input:focus,select:focus{border-color:var(--basalte);box-shadow:0 0 0 1px var(--
 
 <!-- ACCUEIL -->
 <main id="vue-accueil">
-  <section class="intro wrap">
-    <h1>Nos logements en Auvergne</h1>
-    <p>Réservez en direct, sans frais de service : paiement sécurisé, contrat signé en ligne, arrivée autonome.</p>
+  <section class="hero-auv" aria-labelledby="titre-hero">
+    <img class="hero-photo" src="https://images.unsplash.com/photo-1700488794920-87f9c1f07b30?auto=format&fit=crop&w=2000&q=75" alt="Le puy de Dôme et la chaîne des Puys au coucher du soleil" fetchpriority="high">
+    <div class="hero-voile" aria-hidden="true"></div>
+    <div class="wrap hero-texte">
+      <p class="surtitre">Puy-de-Dôme · Chaîne des Puys</p>
+      <h1 id="titre-hero">Vos escapades au pied des volcans</h1>
+      <p class="accroche">Suites avec spa, salles cinéma et appartements cosy à Cournon, Aubière et Royat. Réservez en direct, sans frais de service.</p>
+      <a class="btn-hero" href="#logements">Voir les logements</a>
+    </div>
+    <svg class="volcans" viewBox="0 0 1440 140" preserveAspectRatio="none" aria-hidden="true">
+      <path class="v-loin" d="M0 140V96l120-14 90-30 60 26 110-8 140-46 70 22 60-6 120 34 150-10 110-40 90 30 120-4 100 26 100-8v68z"/>
+      <path class="v-pres" d="M0 140v-30l160 6 120-28 70 16 130-10 160-44 46 8 54-8 150 46 140-6 110 24 120-18 180 22v52z"/>
+    </svg>
+  </section>
+
+  <section class="wrap a-proximite" aria-label="À proximité">
+    <span>À deux pas :</span>
+    <ul><li>Puy de Dôme</li><li>Vulcania</li><li>Zénith d'Auvergne</li><li>Thermes de Royat</li><li>Clermont-Ferrand</li></ul>
+  </section>
+
+  <section class="intro wrap" id="logements">
+    <h2>Nos logements</h2>
+    <p>Paiement sécurisé, contrat signé en ligne, arrivée autonome.</p>
   </section>
 
   <section class="wrap" aria-labelledby="titre-logements">
@@ -501,7 +551,7 @@ input:focus,select:focus{border-color:var(--basalte);box-shadow:0 0 0 1px var(--
   <div class="vis-piste" id="vis-piste"></div>
 </dialog>
 
-<div class="wrap"><footer>Escapades Auvergne · Location saisonnière en Auvergne · <a href="mailto:reservation@escapades-auvergne.fr">reservation@escapades-auvergne.fr</a> · <a href="tel:+33615272545">06 15 27 25 45</a></footer></div>
+<div class="wrap"><footer>Escapades Auvergne · Location saisonnière en Auvergne · <a href="mailto:reservation@escapades-auvergne.fr">reservation@escapades-auvergne.fr</a> · <a href="tel:+33615272545">06 15 27 25 45</a><br><small>Photo d'en-tête : <a href="https://unsplash.com/photos/ugVRmcA-np0" target="_blank" rel="noopener">Andréa Villiers / Unsplash</a></small></footer></div>
 
 <script>
 const SUPABASE = "https://hojcqnlkkuenobvainpf.supabase.co";
@@ -651,7 +701,7 @@ function rendreFiche() {
     ${l.equipements?.length ? `<section><h2>Ce que propose ce logement</h2><ul class="equip-liste" style="margin-top:12px">${l.equipements.map((e) => `<li>${echapper(e)}</li>`).join("")}</ul></section>` : ""}
     <section><h2>Arrivée et départ</h2><div class="horaires" style="margin-top:10px"><span><b>Arrivée</b>à partir de ${l.arrivee_heure}, en autonomie</span><span><b>Départ</b>avant ${l.depart_heure}</span><span><b>Caution</b>empreinte de ${params.caution_montant ?? 500} €, sans débit</span></div></section>
     ${(l.options ?? []).length ? `<section><h2>Options de séjour</h2><p class="capa" style="margin:6px 0 16px">Déjà réservé, ici ou sur Airbnb ? Ajoutez une option en un clic, paiement sécurisé par Stripe. Le départ tardif se réserve au plus tard à 9h le matin du départ.</p>${listeOptions(l.options, l)}</section>` : ""}
-    ${l.latitude ? `<section><h2>Où vous serez</h2><p class="capa" style="margin-bottom:12px">${echapper(l.ville)}, Puy-de-Dôme. L'adresse exacte est communiquée après la réservation.</p><iframe class="carte-osm" loading="lazy" title="Carte du quartier" src="https://www.openstreetmap.org/export/embed.html?bbox=${l.longitude - 0.012},${l.latitude - 0.007},${l.longitude + 0.012},${l.latitude + 0.007}&layer=mapnik"></iframe></section>` : ""}`;
+    ${l.latitude ? `<section><h2>Où vous serez</h2><p class="capa" style="margin-bottom:12px">${echapper(l.ville)}, Puy-de-Dôme. L'adresse exacte est communiquée après la réservation.</p><div class="carte-cadre"><iframe class="carte-osm" loading="lazy" title="Carte du quartier" tabindex="-1" src="https://www.openstreetmap.org/export/embed.html?bbox=${l.longitude - 0.012},${l.latitude - 0.007},${l.longitude + 0.012},${l.latitude + 0.007}&layer=mapnik"></iframe><button type="button" class="carte-activer" aria-label="Activer la carte pour la déplacer et zoomer"><span>Toucher pour explorer la carte</span></button></div></section>` : ""}`;
   const plus = $("#desc-plus");
   if (plus) plus.onclick = () => { const d = $("#desc"); d.classList.toggle("court"); plus.textContent = d.classList.contains("court") ? "Lire la suite" : "Réduire"; };
   else $("#desc").classList.remove("court");
@@ -660,6 +710,26 @@ function rendreFiche() {
 }
 
 // Visionneuse plein écran
+// Carte : active au clic, désactivée dès que la souris sort ou qu'on touche ailleurs
+document.addEventListener("click", (e) => {
+  const b = e.target.closest(".carte-activer");
+  document.querySelectorAll(".carte-cadre.active").forEach((c) => { if (!c.contains(e.target)) c.classList.remove("active"); });
+  if (b) { const c = b.closest(".carte-cadre"); c.classList.add("active"); c.querySelector("iframe").tabIndex = 0; }
+});
+document.addEventListener("mouseout", (e) => {
+  const c = e.target.closest?.(".carte-cadre.active");
+  if (c && !c.contains(e.relatedTarget)) c.classList.remove("active");
+});
+// Parallaxe douce de la photo d'en-tête
+(() => {
+  const ph = document.querySelector(".hero-photo");
+  if (!ph || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  let att = false;
+  addEventListener("scroll", () => {
+    if (att) return; att = true;
+    requestAnimationFrame(() => { att = false; const y = Math.min(scrollY, 700); ph.style.setProperty("--parallaxe", `${y * 0.25}px`); });
+  }, { passive: true });
+})();
 $("#galerie").addEventListener("click", (e) => { const b = e.target.closest("[data-i]"); if (b) ouvrirVisionneuse(Number(b.dataset.i)); });
 function ouvrirVisionneuse(i) {
   const ph = etat.l.photos, piste = $("#vis-piste");
