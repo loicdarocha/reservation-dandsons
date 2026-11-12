@@ -7,7 +7,7 @@
 <meta name="description" content="Réservez en direct nos logements à Cournon-d'Auvergne, Aubière et Royat : suites avec spa, salles cinéma, appartements pour curistes.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fjalla+One&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 :root{
   --basalte:#222222;      /* texte */
@@ -408,6 +408,13 @@ body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;
 /* la photo remonte sous le bandeau */
 #vue-accueil:not([hidden]) .hero-auv{margin-top:calc(-1 * var(--h-entete))}
 .hero-texte{padding-top:calc(var(--h-entete) + 90px)}
+
+/* Police titres : Fjalla One en petites capitales */
+.barre-haut .marque{font-family:"Fjalla One",var(--sans);font-variant:small-caps;font-size:25px;letter-spacing:.03em}
+.marque .mq-1,.marque .mq-2{font-weight:400}
+.marque .mq-2{opacity:.8}
+.hero-texte h1{font-family:"Fjalla One",var(--sans);font-weight:400;font-variant:small-caps;letter-spacing:.02em;line-height:1.02;font-size:clamp(40px,6.6vw,76px);max-width:15ch}
+.intro h2{font-family:"Fjalla One",var(--sans);font-weight:400;font-variant:small-caps;letter-spacing:.02em;font-size:30px}
 </style>
 </head>
 <body>
