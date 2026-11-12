@@ -295,7 +295,7 @@ body{font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased}
 .btn-hero:hover{transform:translateY(-2px);box-shadow:0 12px 28px rgba(0,0,0,.3)}
 .volcans{position:absolute;left:0;right:0;bottom:-1px;width:100%;height:clamp(60px,9vw,130px);display:block}
 .volcans .v-loin{fill:rgba(255,255,255,.35)}
-.volcans .v-pres{fill:var(--brume)}
+.volcans .v-pres{fill:#f6f2ee}
 @keyframes hero-entree{from{opacity:0;transform:scale(1.1)}to{opacity:1}}
 @media (prefers-reduced-motion:reduce){.hero-photo{animation:none;transform:none}}
 .a-proximite{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;padding-top:8px;font-size:14px;color:var(--basalte-doux)}
@@ -377,23 +377,15 @@ input:focus,select:focus{border-color:var(--basalte);box-shadow:0 0 0 1px var(--
 .contrat,canvas#signature{border-radius:12px}
 .confirmation h1{font-family:var(--sans);font-weight:700;letter-spacing:-.02em}
 
-/* Découvrir l'Auvergne */
-.decouvrir{margin-top:72px}
-.surtitre-sec{margin:0 0 6px;font-size:13px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--lave)}
-.decouvrir h2{margin:0;font-size:clamp(26px,3.2vw,36px);font-weight:800;letter-spacing:-.02em}
-.decouvrir .sous-titre{margin:8px 0 22px;color:var(--basalte-doux);max-width:60ch}
-.mosaique{display:grid;grid-template-columns:repeat(4,1fr);grid-auto-rows:230px;gap:12px}
-.tuile{position:relative;margin:0;border-radius:14px;overflow:hidden;background:var(--gris-clair)}
-.tuile.haute{grid-row:span 2}
-.tuile.large{grid-column:span 2}
-.tuile img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .6s ease}
-.tuile:hover img{transform:scale(1.05)}
-.tuile figcaption{position:absolute;left:0;right:0;bottom:0;padding:28px 14px 12px;color:#fff;font-weight:700;font-size:15px;background:linear-gradient(180deg,transparent,rgba(0,0,0,.6))}
-@media (max-width:860px){
-  .mosaique{grid-template-columns:none;grid-auto-flow:column;grid-auto-columns:72%;grid-auto-rows:260px;overflow-x:auto;scroll-snap-type:x mandatory;padding-bottom:6px;-webkit-overflow-scrolling:touch}
-  .tuile{scroll-snap-align:start}
-  .tuile.haute{grid-row:auto}.tuile.large{grid-column:auto}
-}
+
+/* Fond : paysage d'Auvergne très léger derrière tout le site */
+body{background:transparent;position:relative}
+html{background:#fbf8f5}
+body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;
+  background:linear-gradient(180deg,rgba(251,248,245,.86),rgba(251,248,245,.9)),
+    url("https://images.unsplash.com/photo-1662901519019-ad5e7c5d7502?auto=format&fit=crop&w=1800&q=60") center/cover no-repeat}
+.engagements{background:rgba(255,255,255,.7);border-radius:16px;padding:28px 24px;backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)}
+.engagements::before{display:none}
 </style>
 </head>
 <body>
@@ -439,20 +431,6 @@ input:focus,select:focus{border-color:var(--basalte);box-shadow:0 0 0 1px var(--
     <h2 id="titre-logements" hidden>Nos logements</h2>
 
     <div id="liste"><p class="chargement">Chargement des logements…</p></div>
-  </section>
-
-  <section class="wrap decouvrir" aria-labelledby="titre-decouvrir">
-    <p class="surtitre-sec">Autour de vos séjours</p>
-    <h2 id="titre-decouvrir">Découvrir l'Auvergne</h2>
-    <p class="sous-titre">Volcans, lacs, randonnées et grands espaces : de belles escapades au départ de nos logements.</p>
-    <div class="mosaique">
-      <figure class="tuile haute"><img loading="lazy" src="https://images.unsplash.com/photo-1785158058147-02b7b15f7134?auto=format&fit=crop&w=1200&q=70" alt="Montagnes verdoyantes d'Auvergne"><figcaption>Les monts d'Auvergne</figcaption></figure>
-      <figure class="tuile large"><img loading="lazy" src="https://images.unsplash.com/photo-1700488784117-9cd39017ccd2?auto=format&fit=crop&w=1200&q=70" alt="Le puy de Dôme au coucher du soleil"><figcaption>Le puy de Dôme au couchant</figcaption></figure>
-      <figure class="tuile "><img loading="lazy" src="https://images.unsplash.com/photo-1662918230159-94d4b381f85f?auto=format&fit=crop&w=800&q=70" alt="Le puy Griou vu de la route du puy Mary"><figcaption>Les monts du Cantal</figcaption></figure>
-      <figure class="tuile "><img loading="lazy" src="https://images.unsplash.com/photo-1709908695948-ce161912767f?auto=format&fit=crop&w=800&q=70" alt="Une vache dans un pré, volcans à l'horizon"><figcaption>Prairies et troupeaux</figcaption></figure>
-      <figure class="tuile "><img loading="lazy" src="https://images.unsplash.com/photo-1597874559905-9150da35072a?auto=format&fit=crop&w=800&q=70" alt="Prairie verte au bord d'un lac"><figcaption>Lacs et grands espaces</figcaption></figure>
-      <figure class="tuile "><img loading="lazy" src="https://images.unsplash.com/photo-1662901519019-ad5e7c5d7502?auto=format&fit=crop&w=800&q=70" alt="Crêtes volcaniques sous les nuages"><figcaption>Sommets et crêtes</figcaption></figure>
-    </div>
   </section>
 
   <section class="wrap engagements">
@@ -583,7 +561,7 @@ input:focus,select:focus{border-color:var(--basalte);box-shadow:0 0 0 1px var(--
   <div class="vis-piste" id="vis-piste"></div>
 </dialog>
 
-<div class="wrap"><footer>Escapades Auvergne · Location saisonnière en Auvergne · <a href="mailto:reservation@escapades-auvergne.fr">reservation@escapades-auvergne.fr</a> · <a href="tel:+33615272545">06 15 27 25 45</a><br><small>Photos de l'Auvergne sur Unsplash : <a href="https://unsplash.com/photos/ugVRmcA-np0" target="_blank" rel="noopener">Andréa Villiers</a>, <a href="https://unsplash.com/photos/oKqyZYAfbKQ" target="_blank" rel="noopener">Rosalie Gdy</a>, <a href="https://unsplash.com/photos/uJTspdDj3cA" target="_blank" rel="noopener">Andréa Villiers</a>, <a href="https://unsplash.com/photos/rNOwXilbvSM" target="_blank" rel="noopener">Luc Santeramo</a>, <a href="https://unsplash.com/photos/3ruUoCFvW2A" target="_blank" rel="noopener">Nicolas J. Barbier</a>, <a href="https://unsplash.com/photos/v4tm186pEfY" target="_blank" rel="noopener">Margot Noyelle</a>, <a href="https://unsplash.com/photos/Fs-0uXTHOhE" target="_blank" rel="noopener">Thibaut Marquis</a></small></footer></div>
+<div class="wrap"><footer>Escapades Auvergne · Location saisonnière en Auvergne · <a href="mailto:reservation@escapades-auvergne.fr">reservation@escapades-auvergne.fr</a> · <a href="tel:+33615272545">06 15 27 25 45</a><br><small>Photos : <a href="https://unsplash.com/photos/ugVRmcA-np0" target="_blank" rel="noopener">Andréa Villiers</a> et <a href="https://unsplash.com/photos/Fs-0uXTHOhE" target="_blank" rel="noopener">Thibaut Marquis</a> / Unsplash</small></footer></div>
 
 <script>
 const SUPABASE = "https://hojcqnlkkuenobvainpf.supabase.co";
