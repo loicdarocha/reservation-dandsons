@@ -760,7 +760,7 @@ function rendrePopDates() {
     return `<div class="pop-mois"><h4>${m.toLocaleDateString("fr-FR", { month: "long", year: "numeric" })}</h4><div class="pop-grille">${c}</div></div>`;
   }).join("");
   const premier = new Date(); premier.setDate(1); premier.setHours(0, 0, 0, 0);
-  pop.innerHTML = `<div class="pop-nav"><button type="button" data-nav="-1" aria-label="Mois précédent" ${rech.mois <= premier ? "disabled" : ""}>‹</button><p class="pop-titre">${!rech.arrivee ? "Choisissez votre arrivée" : !rech.depart ? "Choisissez votre départ" : texteDates()}</p><button type="button" data-nav="1" aria-label="Mois suivant">›</button></div><div class="pop-cal">${mois}</div><div class="pop-pied"><button type="button" class="lien" data-action="effacer-dates">Effacer</button><button type="button" class="btn" data-action="valider-dates" ${rech.arrivee && rech.depart ? "" : "disabled"}>Valider</button></div>`;
+  pop.innerHTML = `<div class="pop-nav"><button type="button" data-nav="-1" aria-label="Mois précédent" ${rech.mois <= premier ? "disabled" : ""}>‹</button><p class="pop-titre">${!rech.arrivee ? "Choisissez votre arrivée" : !rech.depart ? "Choisissez votre départ" : texteDates()}</p><button type="button" data-nav="1" aria-label="Mois suivant">›</button></div><div class="pop-cal">${mois}</div><div class="pop-pied"><button type="button" class="lien" data-action="effacer-dates">Effacer</button><button type="button" class="btn" data-action="chercher" ${rech.arrivee && rech.depart ? "" : "disabled"}>Rechercher</button></div>`;
 }
 $("#pop-rech").addEventListener("click", (e) => {
   e.stopPropagation();
