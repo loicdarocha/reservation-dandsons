@@ -1034,6 +1034,8 @@ route();
   addEventListener("scroll", maj, { passive: true });
   addEventListener("resize", maj);
   new MutationObserver(maj).observe(acc, { attributes: true, attributeFilter: ["hidden"] });
+  if ("ResizeObserver" in window) new ResizeObserver(maj).observe(barre);
+  addEventListener("load", maj);
   maj();
 })();
 </script>
