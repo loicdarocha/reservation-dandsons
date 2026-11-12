@@ -67,7 +67,12 @@ export async function genererCodeIgloo(l: any, r: any) {
   const hArrivee = parseInt(String(l.arrivee_heure ?? "16").slice(0, 2), 10);
   // Le code reste valable jusqu'à 13h le jour du départ, pour couvrir le départ tardif
   const hFin = Math.max(13, parseInt(String(l.depart_heure ?? "10").slice(0, 2), 10));
-  const debut = dateIgloo(r.arrivee, hArrivee);
+  // Igloohome refuse un début dans le passé : arrivée le jour même après l'heure d'arrivée → heure pleine suivante
+  let hDebut = hArrivee;
+  const maintenantParis = new Intl.DateTimeFormat("en-GB", { timeZone: "Europe/Paris", year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", hourCycle: "h23" }).formatToParts(new Date());
+  const pp = Object.fromEntries(maintenantParis.map((x) => [x.type, x.value]));
+  if (`${pp.year}-${pp.month}-${pp.day}` === r.arrivee) hDebut = Math.min(23, Math.max(hArrivee, Number(pp.hour) + 1));
+  const debut = dateIgloo(r.arrivee, hDebut);
   let fin = dateIgloo(r.depart, hFin);
   const heures = (new Date(fin).getTime() - new Date(debut).getTime()) / 3600000;
   // Codes « daily » : 29 jours minimum chez Igloohome (cas rare d'un séjour de 28 à 29 jours)
@@ -77,10 +82,10 @@ export async function genererCodeIgloo(l: any, r: any) {
     fin = dateIgloo(jj, hArrivee);
   }
   const type = heures <= 672 ? "hourly" : "daily";
-  const res = await fetch(`https://api.igloohome.co/home/devices/${encodeURIComponent(l.igloo_device_id)}/algopin/${type}`, {
+  const res = await fetch(`https://api.igloodeveloper.co/igloohome/devices/${encodeURIComponent(l.igloo_device_id)}/algopin/${type}`, {
     method: "POST",
     headers: { Authorization: `Bearer ${await tokenIgloo()}`, "Content-Type": "application/json", Accept: "application/json" },
-    body: JSON.stringify({ variance: 1, startDate: debut, endDate: fin, accessName: `${r.prenom} ${r.nom} ${r.ref}`.slice(0, 60) }),
+    body: JSON.stringify({ variance: 1, startDate: debut, endDate: fin, accessName: `${r.prenom} ${r.nom} ${r.ref}`.normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^A-Za-z0-9 _=+,.@-]/g, "").slice(0, 60) }),
   });
   const txt = await res.text();
   if (!res.ok) throw new Error(`Igloohome ${res.status} : ${txt.slice(0, 200)}`);
@@ -94,7 +99,7 @@ export async function envoyerCodeAcces(sb: SB, r: any, l: any, p: Record<string,
     const { pin, pinId } = await genererCodeIgloo(l, r);
     await sb.from("dsons_reservations").update({ code_acces: pin, code_pin_id: pinId, code_envoye_le: new Date().toISOString(), code_erreur: null }).eq("id", r.id);
     await envoyerEmail([r.email], `Votre code d'accès pour ${l.nom}`, gabarit(`
-      <h2 style="color:#1f5fd6">C'est demain !</h2>
+      <h2 style="color:#1f5fd6">Votre code d'accès</h2>
       <p>Bonjour ${r.prenom},</p>
       <p>Voici votre code d'accès personnel pour <b>${l.nom}</b> :</p>
       <p style="font-size:34px;font-weight:700;letter-spacing:6px;margin:18px 0;color:#1f5fd6">${pin}</p>

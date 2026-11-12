@@ -1,6 +1,6 @@
 // POST multipart/form-data : crée la réservation (cases cochées), stocke la CNI, génère le contrat,
 // ouvre un paiement Stripe et envoie contrat + lien de paiement au client et à l'hôte
-import { admin, cors, devis, json, nuitsOccupees, reservable } from "../_shared/commun.ts";
+import { admin, calendrierSuperHote, cors, devis, json, nuitsOccupees, regleSejour, remiseSite, reservable } from "../_shared/commun.ts";
 import { genererContratPdf } from "../_shared/contrat.ts";
 import { stripe } from "../_shared/stripe.ts";
 import { envoyerEmail, b64 as enB64, dateFr, eur } from "../_shared/email.ts";
@@ -46,10 +46,14 @@ Deno.serve(async (req) => {
     const enfants = Math.max(0, parseInt(g("enfants")) || 0);
     if (adultes + enfants > l.capacite) return json({ erreur: `Capacité maximale : ${l.capacite} personnes` }, 400);
 
-    const d = devis(l, g("arrivee"), g("depart"), adultes);
-    if (d.nuits.length < (l.nuits_min ?? 1)) return json({ erreur: `Séjour minimum : ${l.nuits_min} nuit(s)` }, 400);
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(g("arrivee")) || !/^\d{4}-\d{2}-\d{2}$/.test(g("depart")) || g("depart") <= g("arrivee")) return json({ erreur: "Dates invalides" }, 400);
     if (new Date(g("arrivee")) < new Date(new Date().toISOString().slice(0, 10))) return json({ erreur: "Date d'arrivée passée" }, 400);
-    const occ = await nuitsOccupees(sb, l);
+    // Prix et règles relus en direct dans SuperHote (jamais ceux envoyés par le navigateur)
+    const cal = l.superhote_id ? await calendrierSuperHote(l, g("arrivee"), g("depart"), true) : undefined;
+    const regle = regleSejour(cal, g("arrivee"), g("depart"), l.nuits_min ?? 1);
+    if (regle) return json({ erreur: regle }, 400);
+    const d = devis(l, g("arrivee"), g("depart"), adultes, cal, await remiseSite(sb));
+    const occ = await nuitsOccupees(sb, l, cal);
     if (d.nuits.some((n) => occ.has(n))) return json({ erreur: "Ces dates viennent d'être réservées. Choisissez d'autres dates." }, 409);
 
     const ref = refAleatoire();
@@ -108,6 +112,7 @@ Deno.serve(async (req) => {
     if (errIns) throw errIns;
 
     const site = params.site_url ?? req.headers.get("origin") ?? "";
+    // Si Stripe échoue, la demande est supprimée pour ne pas bloquer les dates
     const session = await stripeCheckout({
       mode: "payment",
       locale: "fr",
@@ -126,6 +131,10 @@ Deno.serve(async (req) => {
       expires_at: String(Math.floor(Date.now() / 1000) + 23 * 3600),
       success_url: `${site}?confirmation=${ref}&logement=${l.slug}`,
       cancel_url: `${site}?logement=${l.slug}&annule=1`,
+    }).catch(async (e) => {
+      await sb.from("dsons_reservations").delete().eq("ref", ref);
+      await sb.storage.from(BUCKET).remove([cni_recto_path, cni_verso_path, contrat_path].filter(Boolean) as string[]);
+      throw new Error("Le paiement en ligne est momentanément indisponible. Appelez-nous au 06 15 27 25 45. (" + (e as Error).message + ")");
     });
 
     await sb.from("dsons_reservations").update({ stripe_session_id: session.id, paiement_url: session.url }).eq("ref", ref);

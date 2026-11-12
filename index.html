@@ -566,7 +566,7 @@ function rendreListe(filtre) {
 }
 const noteTxt = (l) => l.note ? `★ ${String(l.note).replace(".", ",")}${l.nb_avis ? ` (${l.nb_avis})` : ""}` : "";
 function carteAnnonce(l) {
-  const prixMin = Math.min(l.prix_semaine ?? Infinity, l.prix_weekend ?? Infinity);
+  const prixMin = l.prix_min ?? Math.min(l.prix_semaine ?? Infinity, l.prix_weekend ?? Infinity);
   const photos = l.photos.map((u, i) => `<img src="${echapper(u)}" alt="${echapper(l.nom)}, photo ${i + 1}" loading="${i ? "lazy" : "eager"}" draggable="false">`).join("");
   return `<a class="carte" href="#logement=${l.slug}" data-slug="${l.slug}">
     <div class="carrousel">
@@ -608,6 +608,7 @@ async function ouvrirTunnel(slug) {
       r = { logement: copie, occupees: [], prix: {}, horsLigne: true };
     }
     etat.l = r.logement; etat.occ = new Set(r.occupees); etat.prix = r.prix;
+    etat.minN = r.min_nuits ?? {}; etat.sansA = new Set(r.sans_arrivee ?? []); etat.sansD = new Set(r.sans_depart ?? []);
     if (!params.raison_sociale) {
       const p = await avecDelai(fetch(SUPABASE + "/rest/v1/dsons_parametres?select=cle,valeur", { headers: { apikey: ANON } }).then((r) => r.json())).catch(() => []);
       params = { ...PARAMS_SECOURS, ...Object.fromEntries((Array.isArray(p) ? p : []).map((x) => [x.cle, x.valeur])) };
@@ -654,7 +655,7 @@ function rendreFiche() {
   const plus = $("#desc-plus");
   if (plus) plus.onclick = () => { const d = $("#desc"); d.classList.toggle("court"); plus.textContent = d.classList.contains("court") ? "Lire la suite" : "Réduire"; };
   else $("#desc").classList.remove("court");
-  const min = Math.min(l.prix_semaine ?? Infinity, l.prix_weekend ?? Infinity);
+  const min = l.prix_min ?? Math.min(l.prix_semaine ?? Infinity, l.prix_weekend ?? Infinity);
   $("#prix-tete").innerHTML = isFinite(min) ? `À partir de <b>${eur(min)}</b> / nuit` : "";
 }
 
@@ -687,7 +688,7 @@ function rendreCalendrier() {
     cases += `<span class="vide"></span>`.repeat(decal);
     for (let d = 1; d <= nb; d++) {
       const s = iso(new Date(m.getFullYear(), m.getMonth(), d));
-      const classes = ["jour"]; let dispo = s >= auj && s <= limite && !etat.occ.has(s);
+      const classes = ["jour"]; let dispo = s >= auj && s <= limite && !etat.occ.has(s) && !(etat.sansA?.has(s) && (!etat.arrivee || etat.depart || s <= etat.arrivee));
       // En sélection du départ : un jour occupé reste choisissable comme jour de départ
       if (etat.arrivee && !etat.depart && s > etat.arrivee && departPossible(s)) { dispo = true; if (etat.occ.has(s)) classes.push("depart-ok"); }
       if (etat.arrivee && !etat.depart && s > etat.arrivee && !departPossible(s)) dispo = false;
@@ -702,11 +703,11 @@ function rendreCalendrier() {
   $("#calendrier").innerHTML = html;
   const premier = new Date(); premier.setDate(1);
   $("#cal-prec").disabled = etat.mois <= new Date(premier.getFullYear(), premier.getMonth(), 1);
-  $("#cal-consigne").textContent = !etat.arrivee ? "Choisissez votre date d'arrivée" : !etat.depart ? "Choisissez votre date de départ" : `${nbNuits()} nuit${nbNuits() > 1 ? "s" : ""} sélectionnée${nbNuits() > 1 ? "s" : ""}`;
+  $("#cal-consigne").textContent = !etat.arrivee ? "Choisissez votre date d'arrivée" : !etat.depart ? `Choisissez votre date de départ${Math.max(etat.l.nuits_min ?? 1, etat.minN?.[etat.arrivee] ?? 1) > 1 ? ` (minimum ${Math.max(etat.l.nuits_min ?? 1, etat.minN?.[etat.arrivee] ?? 1)} nuits)` : ""}` : `${nbNuits()} nuit${nbNuits() > 1 ? "s" : ""} sélectionnée${nbNuits() > 1 ? "s" : ""}`;
 }
 function departPossible(s) {
   for (let n = etat.arrivee; n < s; n = ajout(n, 1)) if (etat.occ.has(n)) return false;
-  return true;
+  return !etat.sansD?.has(s);
 }
 const nbNuits = () => etat.arrivee && etat.depart ? Math.round((versDate(etat.depart) - versDate(etat.arrivee)) / 864e5) : 0;
 
@@ -715,7 +716,7 @@ $("#calendrier").addEventListener("click", (e) => {
   const s = b.dataset.d;
   if (!etat.arrivee || etat.depart || s <= etat.arrivee) { etat.arrivee = s; etat.depart = null; etat.devis = null; }
   else {
-    const min = etat.l.nuits_min ?? 1;
+    const min = Math.max(etat.l.nuits_min ?? 1, etat.minN?.[etat.arrivee] ?? 1);
     if (Math.round((versDate(s) - versDate(etat.arrivee)) / 864e5) < min) { afficherMsg(`Séjour minimum : ${min} nuits.`, "erreur"); return; }
     etat.depart = s; calculerDevis();
   }
@@ -761,7 +762,7 @@ function majRecap() {
   }
   $("#recap-dl").innerHTML = html;
   if (etat.l) {
-    const min = Math.min(etat.l.prix_semaine ?? Infinity, etat.l.prix_weekend ?? Infinity);
+    const min = etat.l.prix_min ?? Math.min(etat.l.prix_semaine ?? Infinity, etat.l.prix_weekend ?? Infinity);
     $("#prix-tete").innerHTML = d ? `<b>${eur(d.montant_total)}</b> pour ${d.nuits.length} nuit${d.nuits.length > 1 ? "s" : ""}` : isFinite(min) ? `À partir de <b>${eur(min)}</b> / nuit` : "";
   }
 }
