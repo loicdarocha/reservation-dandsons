@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>D and Sons · Réservation directe</title>
+<title>Escapades Auvergne · Réservation directe</title>
 <meta name="description" content="Réservez en direct nos logements à Cournon-d'Auvergne, Aubière et Royat : suites avec spa, salles cinéma, appartements pour curistes.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -12,7 +12,7 @@
 :root{
   --basalte:#222222;      /* texte */
   --basalte-doux:#6a6a6a; /* texte secondaire */
-  --lave:#1f5fd6;         /* bleu D and Sons */
+  --lave:#1f5fd6;         /* bleu Escapades Auvergne */
   --lave-fonce:#1849a8;
   --volvic:#dddddd;       /* bordures */
   --brume:#ffffff;        /* fond */
@@ -351,9 +351,9 @@ input:focus,select:focus{border-color:var(--basalte);box-shadow:0 0 0 1px var(--
 <body>
 <div class="barre-haut">
   <header class="entete wrap">
-    <a class="marque" href="./" aria-label="D and Sons, accueil">
+    <a class="marque" href="./" aria-label="Escapades Auvergne, accueil">
       <svg viewBox="0 0 32 32" width="30" height="30" aria-hidden="true"><path d="M16 3 3 14v15h9v-9h8v9h9V14z" fill="currentColor"/></svg>
-      <span>D and Sons</span>
+      <span>Escapades Auvergne</span>
     </a>
     <div class="recherche" id="recherche" role="group" aria-label="Choisir une ville"></div>
     <a class="tel" href="tel:+33615272545">06 15 27 25 45</a>
@@ -501,7 +501,7 @@ input:focus,select:focus{border-color:var(--basalte);box-shadow:0 0 0 1px var(--
   <div class="vis-piste" id="vis-piste"></div>
 </dialog>
 
-<div class="wrap"><footer>D and Sons · Location saisonnière en Auvergne · <a href="mailto:l.darocha@tf-courtage.fr">l.darocha@tf-courtage.fr</a></footer></div>
+<div class="wrap"><footer>Escapades Auvergne · Location saisonnière en Auvergne · <a href="mailto:reservation@escapades-auvergne.fr">reservation@escapades-auvergne.fr</a> · <a href="tel:+33615272545">06 15 27 25 45</a></footer></div>
 
 <script>
 const SUPABASE = "https://hojcqnlkkuenobvainpf.supabase.co";
@@ -616,7 +616,7 @@ async function ouvrirTunnel(slug) {
     }
     $("#t-nom").textContent = etat.l.titre ?? etat.l.nom;
     $("#t-lieu").textContent = [noteTxt(etat.l) && `${noteTxt(etat.l)} avis`, etat.l.ville].filter(Boolean).join(" · ");
-    document.title = `${etat.l.nom} · D and Sons`;
+    document.title = `${etat.l.nom} · Escapades Auvergne`;
     rendreFiche();
     if (!etat.l.reservable) {
       $("#calendrier").innerHTML = r.horsLigne
@@ -904,7 +904,7 @@ function route() {
     return;
   }
   if (q.get("logement")) return ouvrirTunnel(q.get("logement"));
-  montrer("accueil"); document.title = "D and Sons · Réservation directe";
+  montrer("accueil"); document.title = "Escapades Auvergne · Réservation directe";
 }
 $("#btn-retour").onclick = () => { if (location.search) location.href = location.pathname; else location.hash = ""; };
 window.addEventListener("hashchange", route);
